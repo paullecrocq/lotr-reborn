@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Siege Base Rules</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a field-guide — fixed index of chapters on the left, one long reading column on the right; tables for numbers, mono for anything typed in chat. */
+:root {
+  --bg: #eef0ea;
+  --panel: #f8f9f5;
+  --ink: #1d2621;
+  --muted: #5b6760;
+  --line: #d3d9d1;
+  --accent: #2c5b86;     /* mithril blue */
+  --gold: #8f6a1c;       /* coin gold, readable on light */
+  --gold-bg: #f3e9cf;
+  --cmd-bg: #e2e8e3;
+  --warn: #9a3324;
+  --warn-bg: #f6e3de;
+  --f-display: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
+  --f-body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111614; --panel: #18201c; --ink: #e2e8e1; --muted: #9aa7a0; --line: #2c3731;
+    --accent: #8fb6dd; --gold: #d8b45e; --gold-bg: #2d2717; --cmd-bg: #222c27;
+    --warn: #f0a08f; --warn-bg: #3a221d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111614; --panel: #18201c; --ink: #e2e8e1; --muted: #9aa7a0; --line: #2c3731;
+  --accent: #8fb6dd; --gold: #d8b45e; --gold-bg: #2d2717; --cmd-bg: #222c27;
+  --warn: #f0a08f; --warn-bg: #3a221d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+
+.page { max-width: 760px; margin: 0 auto; padding-block: 40px 80px; }
+.back { font-size: .92rem; text-decoration: none; }
+header.hero { padding-bottom: 24px; border-bottom: 1px solid var(--line); margin: 14px 0 8px; }
+header.hero .eyebrow { font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+header.hero h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(2.2rem, 5vw, 3.2rem); line-height: 1.05; margin: 8px 0 12px; letter-spacing: .02em; text-wrap: balance; }
+header.hero p { color: var(--muted); margin: 0; font-size: 1.06rem; }
+.toc { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.toc a { font-size: .9rem; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--ink); background: var(--panel); }
+.toc a:hover { border-color: var(--accent); }
+section { padding-top: 34px; scroll-margin-top: 16px; }
+section > h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; letter-spacing: .03em; margin: 0 0 4px; }
+section > .lede { color: var(--muted); margin: 0 0 14px; }
+ol.rules { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+ol.rules li { display: grid; grid-template-columns: 52px minmax(0, 1fr); gap: 12px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 14px; margin: 0; }
+ol.rules .n { font-family: var(--f-mono); font-weight: 600; color: var(--gold); font-size: .95rem; padding-top: 2px; }
+ol.rules p { margin: 0; }
+ol.rules .why { color: var(--muted); font-size: .93rem; margin-top: 4px; }
+.note { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; margin: 14px 0; }
+.note.auto { background: var(--gold-bg); border-color: transparent; }
+.note h3 { margin: 0 0 6px; font-size: 1.02rem; }
+.note ul { margin: 4px 0 0; padding-left: 1.2em; }
+code { font-family: var(--f-mono); font-size: .86em; background: var(--cmd-bg); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <a class="back" href="../#war">&larr; Back to the Info Center</a>
+  <header class="hero">
+    <div class="eyebrow">LOTR Reborn · Wars &amp; territories</div>
+    <h1>Siege Base Rules</h1>
+    <p>Every siege base is checked by the staff before it is validated. A base that breaks one of these rules is sent back for changes. Rules are numbered so you can quote them.</p>
+    <div class="toc">
+      <a href="#path">The path</a>
+      <a href="#gates">Gates</a>
+      <a href="#capture">Capture area</a>
+      <a href="#holes">Openings</a>
+      <a href="#auto">Checked automatically</a>
+    </div>
+  </header>
+
+  <section id="path">
+    <h2>The path</h2>
+    <p class="lede">The path is the way the attackers walk from their spawn point (redstone block) to the capture area (emerald).</p>
+    <ol class="rules">
+      <li><span class="n">P1</span><div><p>A path must exist that connects the attackers' spawn point and the capture area.</p></div></li>
+      <li><span class="n">P2</span><div><p>Only gates can block the path.</p></div></li>
+      <li><span class="n">P3</span><div><p>At every location, the path must be at least <b>3 blocks wide</b>.</p></div></li>
+      <li><span class="n">P4</span><div><p>Lesser obstructions are tolerated next to the path, on the condition that the path is at least <b>5 blocks wide</b> there. Lesser obstructions can slow players down.</p></div></li>
+      <li><span class="n">P5</span><div><p>The path must not be next to any source of damage, for example lava or Morgul flowers.</p></div></li>
+      <li><span class="n">P6</span><div><p>There must be no pit that prevents players from getting back to the path: every pit must have an exit.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="gates">
+    <h2>Gates</h2>
+    <p class="lede">Gates are LOTR gate blocks. Attackers break them with the siege ram.</p>
+    <ol class="rules">
+      <li><span class="n">G1</span><div><p>Every gate on the path must be at least <b>3&times;3</b>.</p></div></li>
+      <li><span class="n">G2</span><div><p>In front of each gate, there must be enough space to place a ram.</p><p class="why">The ram is set up on the attackers' side: it needs 6 free blocks in front of the gate, 2 blocks high, with 1 free block on each side (3 wide).</p></div></li>
+    </ol>
+  </section>
+
+  <section id="capture">
+    <h2>Capture area and spawns</h2>
+    <ol class="rules">
+      <li><span class="n">C1</span><div><p>The capture area must be in a <b>separate room</b> from the defenders' spawn point.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="holes">
+    <h2>Openings in walls and roofs</h2>
+    <ol class="rules">
+      <li><span class="n">H1</span><div><p>Holes in walls aimed at the lower part of the attackers' bodies are not allowed.</p></div></li>
+      <li><span class="n">H2</span><div><p>No hole in a wall or roof may be aimed directly at the capture area.</p></div></li>
+    </ol>
+  </section>
+
+  <section id="auto">
+    <div class="note auto">
+      <h3>Checked automatically</h3>
+      <p>The server refuses to submit or validate a base that doesn't meet these:</p>
+      <ul>
+        <li>A diamond block (defenders' spawn), a redstone block (attackers' spawn) and emerald (capture area).</li>
+        <li>The defenders' spawn is at least <b>30 blocks</b> from the capture area.</li>
+        <li>Every gate in the base stands upright and is at least 3&times;3.</li>
+        <li>Each gate has at most <b>200 HP</b>, and all the gates together at most <b>1000 HP</b> (<code>/siegegate</code>).</li>
+      </ul>
+    </div>
+    <div class="note">
+      <h3>How a base gets validated</h3>
+      <p>When the base is finished, the leader runs <code>/faction siegebase &lt;territory&gt; submit</code>. The staff checks it against these rules, then validates it or sends it back with a reason. <code>/faction siegebase &lt;territory&gt; reopen</code> unlocks a base for changes; it must then be validated again.</p>
+    </div>
+  </section>
+
+  <footer>LOTR Reborn · Siege base rules · <a href="../#war">Info Center</a></footer>
+</div>
+</body>
+</html>

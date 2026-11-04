@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Conquest Map · LOTR Reborn</title>
+<meta name="description" content="Live map of the territories of Middle-earth on LOTR Reborn: who rules them, their weekly fees and resources.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Same visual language as the Info Center: parchment field-guide, mithril blue, coin gold. */
+:root {
+  --bg: #eef0ea; --panel: #f8f9f5; --ink: #1d2621; --muted: #5b6760; --line: #d3d9d1;
+  --accent: #2c5b86; --gold: #8f6a1c; --gold-bg: #f3e9cf; --cmd-bg: #e2e8e3;
+  --warn: #9a3324; --warn-bg: #f6e3de; --ok: #2f6b3a;
+  --sea: #0b5a8c;
+  --f-display: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
+  --f-body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111614; --panel: #18201c; --ink: #e2e8e1; --muted: #9aa7a0; --line: #2c3731;
+    --accent: #8fb6dd; --gold: #d8b45e; --gold-bg: #2d2717; --cmd-bg: #222c27;
+    --warn: #f0a08f; --warn-bg: #3a221d; --ok: #8fd19e; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111614; --panel: #18201c; --ink: #e2e8e1; --muted: #9aa7a0; --line: #2c3731;
+  --accent: #8fb6dd; --gold: #d8b45e; --gold-bg: #2d2717; --cmd-bg: #222c27;
+  --warn: #f0a08f; --warn-bg: #3a221d; --ok: #8fd19e; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; }
+body { background: var(--bg); color: var(--ink); font-family: var(--f-body); font-size: 16px; line-height: 1.5; }
+a { color: var(--accent); }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+code { font-family: var(--f-mono); font-size: .84em; background: var(--cmd-bg); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+
+.app { display: grid; grid-template-columns: minmax(0, 1fr) 380px; grid-template-rows: auto minmax(0, 1fr); height: 100vh; height: 100dvh; }
+header.top { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap;
+  padding: 12px max(16px, env(safe-area-inset-right, 0px)) 10px max(16px, env(safe-area-inset-left, 0px)); border-bottom: 1px solid var(--line); }
+header.top h1 { font-family: var(--f-display); font-weight: 700; font-size: 1.7rem; letter-spacing: .03em; margin: 0; line-height: 1.1; }
+header.top .eyebrow { font-size: .75rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+header.top .meta { color: var(--muted); font-size: .9rem; margin-left: auto; text-align: right; }
+header.top .meta b { color: var(--ink); font-weight: 600; }
+
+/* ---------- map ---------- */
+.mapwrap { position: relative; overflow: hidden; background: var(--sea); touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none; }
+.mapwrap.drag { cursor: grabbing; }
+.world { position: absolute; left: 0; top: 0; width: 3200px; height: 4000px; transform-origin: 0 0; }
+.world img { width: 100%; height: 100%; display: block; image-rendering: auto; pointer-events: none; }
+.pin { position: absolute; width: 0; height: 0; }
+.pin .inner { position: absolute; left: 0; top: 0; transform: scale(var(--inv, 1)); transform-origin: 0 0; }
+.pin.sel { z-index: 2; }
+.pin button.dotb { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); padding: 6px; border: 0; background: none; cursor: pointer; display: block; }
+.pin .dot { display: block; width: 20px; height: 20px; border-radius: 50%; background: var(--fill, #fff);
+  border: 2.5px solid #1d2621; box-shadow: 0 0 0 2px rgba(255,255,255,.85); }
+.world.far .pin .dot { width: 14px; height: 14px; border-width: 2px; }
+.pin.free .dot { background: rgba(255,255,255,.55); border-style: dashed; border-color: #3a4640; }
+.pin .lbl { position: absolute; left: 0; top: 0; font-weight: 700; font-size: 13px; color: #1d2621; white-space: nowrap; cursor: pointer;
+  background: rgba(248,249,245,.9); padding: 0 6px; border-radius: 4px; line-height: 1.45; }
+.pin .lbl[hidden] { display: none; }
+.pin.sel .dot { box-shadow: 0 0 0 3px #fff, 0 0 0 6px var(--accent); }
+.pin.sel .lbl { background: #1d2621; color: #fff; }
+.pin.bid .dot::after { content: ""; position: absolute; inset: -9px; border-radius: 50%; border: 2px solid #c0392b; animation: pulse 1.6s ease-out infinite; }
+.pin .dot { position: relative; }
+@keyframes pulse { from { transform: scale(.7); opacity: 1; } to { transform: scale(1.5); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pin.bid .dot::after { animation: none; transform: scale(1.15); } }
+
+.zoom { position: absolute; right: 12px; top: 12px; display: grid; gap: 6px; }
+.zoom button { width: 38px; height: 38px; border-radius: 8px; border: 1px solid rgba(0,0,0,.25); background: rgba(248,249,245,.95); color: #1d2621;
+  font-size: 1.2rem; font-weight: 700; cursor: pointer; display: grid; place-items: center; }
+.legend summary { cursor: pointer; font-weight: 700; list-style-position: inside; }
+.legend[open] summary { margin-bottom: 4px; }
+.legend { position: absolute; left: 12px; bottom: 12px; background: rgba(248,249,245,.94); color: #1d2621; border-radius: 8px; padding: 8px 10px;
+  font-size: .85rem; max-width: min(320px, calc(100% - 24px)); box-shadow: 0 1px 3px rgba(0,0,0,.2); }
+.legend ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+.legend li { display: flex; align-items: center; gap: 8px; }
+.legend .sw { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1d2621; flex: none; }
+.legend .sw.free { background: rgba(255,255,255,.6); border-style: dashed; }
+.legend .sw.bid { background: none; border-color: #c0392b; }
+.legend .n { margin-left: auto; color: #5b6760; font-variant-numeric: tabular-nums; padding-left: 10px; }
+
+/* ---------- side panel ---------- */
+aside.side { border-left: 1px solid var(--line); overflow-y: auto; background: var(--bg); padding: 0 0 24px; }
+.detail { padding: 18px 18px 8px; border-bottom: 1px solid var(--line); }
+.detail .empty { color: var(--muted); }
+.detail h2 { font-family: var(--f-display); font-weight: 700; font-size: 1.9rem; letter-spacing: .03em; margin: 0; line-height: 1.1; }
+.detail .desc { color: var(--muted); font-style: italic; margin: 4px 0 12px; }
+.owner { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; padding: 4px 10px; border-radius: 999px; background: var(--panel); border: 1px solid var(--line); }
+.owner .sw { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1d2621; }
+dl.facts { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; margin: 14px 0 6px; }
+dl.facts dt { color: var(--muted); font-size: .9rem; }
+dl.facts dd { margin: 0; font-variant-numeric: tabular-nums; }
+.big { font-size: 1.35rem; font-weight: 700; }
+.lrx { color: var(--accent); }
+.coins { color: var(--gold); font-weight: 700; }
+.alert { background: var(--warn-bg); border-radius: 8px; padding: 10px 12px; margin: 12px 0; }
+.alert strong { color: var(--warn); }
+.box { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 12px; margin: 12px 0; }
+.box h3 { margin: 0 0 6px; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.box ul { margin: 0; padding-left: 1.1em; }
+.how { color: var(--muted); font-size: .9rem; }
+
+.listhead { display: flex; align-items: center; gap: 10px; padding: 14px 18px 6px; }
+.listhead h3 { margin: 0; font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+.listhead input { margin-left: auto; width: 55%; min-width: 0; font: inherit; font-size: .9rem; padding: 6px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
+ul.tlist { list-style: none; margin: 0; padding: 0 10px; }
+ul.tlist li button { width: 100%; display: grid; grid-template-columns: 14px minmax(0, 1fr) auto; gap: 10px; align-items: center; text-align: left;
+  padding: 7px 8px; border: 0; border-radius: 6px; background: none; cursor: pointer; }
+ul.tlist li button:hover, ul.tlist li button[aria-current="true"] { background: var(--panel); }
+ul.tlist .sw { width: 12px; height: 12px; border-radius: 50%; border: 2px solid #1d2621; background: var(--fill, transparent); }
+ul.tlist .sw.free { border-style: dashed; border-color: var(--muted); }
+ul.tlist .nm { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+ul.tlist .nm small { display: block; font-weight: 400; color: var(--muted); font-size: .82rem; }
+ul.tlist .fee { color: var(--accent); font-variant-numeric: tabular-nums; font-size: .9rem; white-space: nowrap; }
+.foot { padding: 14px 18px 0; color: var(--muted); font-size: .85rem; }
+.err { padding: 18px; color: var(--warn); }
+
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto 58vh minmax(0, 1fr); grid-template-rows: auto 58dvh minmax(0, 1fr); }
+  aside.side { border-left: 0; border-top: 1px solid var(--line); }
+  header.top .meta { margin-left: 0; text-align: left; width: 100%; }
+  header.top h1 { font-size: 1.4rem; }
+  .legend { font-size: .78rem; padding: 6px 8px; }
+}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <div>
+      <div class="eyebrow">LOTR Reborn</div>
+      <h1>Conquest of Middle-earth</h1>
+    </div>
+    <div class="meta" id="meta">Loading the map…</div>
+  </header>
+
+  <div class="mapwrap" id="map" aria-label="Map of Middle-earth with the territories">
+    <div class="world" id="world"><img src="map.png" alt="" width="3200" height="4000" draggable="false"></div>
+    <div class="zoom">
+      <button type="button" id="zin" aria-label="Zoom in">+</button>
+      <button type="button" id="zout" aria-label="Zoom out">−</button>
+      <button type="button" id="zfit" aria-label="Show all territories" title="Show all territories">⤢</button>
+    </div>
+    <details class="legend" id="legend" hidden open><summary>Legend</summary><div id="legendBody"></div></details>
+  </div>
+
+  <aside class="side">
+    <section class="detail" id="detail" aria-live="polite">
+      <p class="empty">Click a territory on the map, or in the list below, to see who rules it, its weekly fee and its resources.</p>
+    </section>
+    <div class="listhead">
+      <h3>Territories</h3>
+      <input type="search" id="q" placeholder="Search a territory or faction" aria-label="Search a territory or faction">
+    </div>
+    <ul class="tlist" id="tlist"></ul>
+    <p class="foot">Updated by the server a few minutes after every change. Take a free territory in game with <code>/t overtake &lt;territory&gt; &lt;LRX&gt;</code>. All the rules: <a href="../#war">Info Center</a>.</p>
+  </aside>
+</div>
+
+<script>
+(function () {
+  var W = 3200, H = 4000;
+  var mapEl = document.getElementById('map'), world = document.getElementById('world');
+  var detail = document.getElementById('detail'), tlist = document.getElementById('tlist'), meta = document.getElementById('meta');
+  var legend = document.getElementById('legend'), q = document.getElementById('q');
+  var DATA = null, selected = null, pins = {}, rows = {};
+  var view = { s: 0.3, x: 0, y: 0 }, minS = 0.08, maxS = 2.5, fitted = false;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function num(n) { return Math.round(n).toLocaleString('en-US'); }
+  function dateTime(t) { return new Date(t).toLocaleString('en-GB', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }); }
+  function dateOnly(t) { return new Date(t).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }); }
+  function span(ms) {
+    if (ms <= 0) return 'now';
+    var m = Math.floor(ms / 60000), d = Math.floor(m / 1440), h = Math.floor((m % 1440) / 60), mm = m % 60;
+    return d > 0 ? d + ' d ' + h + ' h' : h > 0 ? h + ' h ' + mm + ' min' : mm + ' min';
+  }
+  function ago(t) { var m = Math.round((Date.now() - t) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : Math.round(m / 1440) + ' d ago'; }
+  var SIEGE = { building: 'Siege base under construction (can’t be besieged yet)', submitted: 'Siege base waiting for staff validation', valid: 'Siege base validated: this territory can be besieged' };
+
+  // ---------- view ----------
+  function apply() {
+    world.style.transform = 'translate(' + view.x + 'px,' + view.y + 'px) scale(' + view.s + ')';
+    world.style.setProperty('--inv', (1 / view.s).toFixed(4));
+    world.classList.toggle('far', view.s < 0.22);
+    schedule();
+  }
+  // Labels placed in screen space so they never overlap: below, above, right or left of the dot, else hidden.
+  var raf = 0;
+  function schedule() { if (!raf) raf = requestAnimationFrame(function () { raf = 0; placeLabels(); }); }
+  function placeLabels() {
+    if (!DATA) return;
+    var s = view.s, far = s < 0.22, dot = far ? 9 : 12, boxes = [], items = [];
+    DATA.territories.forEach(function (t) { if (t.x != null && pins[t.id]) items.push(t); });
+    items.forEach(function (t) { var cx = t.x * s, cy = t.y * s; boxes.push([cx - dot, cy - dot, cx + dot, cy + dot]); });
+    items.sort(function (a, b) { return (b.id === selected) - (a.id === selected) || (b.owner ? 1 : 0) - (a.owner ? 1 : 0) || b.fee - a.fee; });
+    items.forEach(function (t) {
+      var lbl = pins[t.id].querySelector('.lbl');
+      if (far && t.id !== selected) { lbl.hidden = true; return; }
+      lbl.hidden = false;
+      var w = lbl.offsetWidth, h = lbl.offsetHeight, cx = t.x * s, cy = t.y * s, g = dot + 3;
+      var cands = [[-w / 2, g], [-w / 2, -g - h], [g, -h / 2], [-g - w, -h / 2]], ok = null;
+      for (var i = 0; i < cands.length && !ok; i++) {
+        var r = [cx + cands[i][0], cy + cands[i][1], cx + cands[i][0] + w, cy + cands[i][1] + h], hit = false;
+        for (var j = 0; j < boxes.length && !hit; j++) { var b = boxes[j]; hit = r[0] < b[2] && r[2] > b[0] && r[1] < b[3] && r[3] > b[1]; }
+        if (!hit) ok = cands[i];
+      }
+      if (!ok && t.id === selected) ok = cands[0];
+      if (!ok) { lbl.hidden = true; return; }
+      lbl.style.left = ok[0] + 'px'; lbl.style.top = ok[1] + 'px';
+      boxes.push([cx + ok[0], cy + ok[1], cx + ok[0] + w, cy + ok[1] + h]);
+    });
+  }
+  function clamp() {
+    view.s = Math.max(minS, Math.min(maxS, view.s));
+    var r = mapEl.getBoundingClientRect(), mw = W * view.s, mh = H * view.s, pad = 80;
+    view.x = Math.min(pad, Math.max(r.width - mw - pad, view.x));
+    view.y = Math.min(pad, Math.max(r.height - mh - pad, view.y));
+  }
+  function zoomAt(f, cx, cy) {
+    var ns = Math.max(minS, Math.min(maxS, view.s * f)), k = ns / view.s;
+    view.x = cx - (cx - view.x) * k; view.y = cy - (cy - view.y) * k; view.s = ns;
+    clamp(); apply();
+  }
+  function fit() {
+    var r = mapEl.getBoundingClientRect(), xs = [], ys = [];
+    (DATA ? DATA.territories : []).forEach(function (t) { if (t.x != null) { xs.push(t.x); ys.push(t.y); } });
+    var x0 = xs.length ? Math.min.apply(0, xs) - 120 : 400, x1 = xs.length ? Math.max.apply(0, xs) + 120 : 2500;
+    var y0 = ys.length ? Math.min.apply(0, ys) - 120 : 400, y1 = ys.length ? Math.max.apply(0, ys) + 140 : 2100;
+    view.s = Math.min(r.width / (x1 - x0), r.height / (y1 - y0));
+    view.x = (r.width - (x1 - x0) * view.s) / 2 - x0 * view.s;
+    view.y = (r.height - (y1 - y0) * view.s) / 2 - y0 * view.s;
+    clamp(); apply();
+  }
+  function centerOn(t) {
+    if (t.x == null) return;
+    var r = mapEl.getBoundingClientRect();
+    if (view.s < 0.45) view.s = 0.45;
+    view.x = r.width / 2 - t.x * view.s; view.y = r.height / 2 - t.y * view.s;
+    clamp(); apply();
+  }
+
+  // drag + pinch
+  var pts = {}, last = null, moved = 0;
+  mapEl.addEventListener('pointerdown', function (e) {
+    if (e.target.closest('.zoom') || e.target.closest('.legend')) return;
+    pts[e.pointerId] = { x: e.clientX, y: e.clientY }; moved = 0;
+  });
+  mapEl.addEventListener('pointermove', function (e) {
+    if (!pts[e.pointerId]) return;
+    var ids = Object.keys(pts), p = pts[e.pointerId];
+    if (ids.length === 1) {
+      if (moved > 4 && !mapEl.classList.contains('drag')) { try { mapEl.setPointerCapture(e.pointerId); } catch (x) {} mapEl.classList.add('drag'); }
+      view.x += e.clientX - p.x; view.y += e.clientY - p.y; moved += Math.abs(e.clientX - p.x) + Math.abs(e.clientY - p.y);
+      pts[e.pointerId] = { x: e.clientX, y: e.clientY }; clamp(); apply();
+    } else if (ids.length === 2) {
+      var o = pts[ids[0] == e.pointerId ? ids[1] : ids[0]];
+      var d0 = Math.hypot(p.x - o.x, p.y - o.y), d1 = Math.hypot(e.clientX - o.x, e.clientY - o.y);
+      var r = mapEl.getBoundingClientRect();
+      pts[e.pointerId] = { x: e.clientX, y: e.clientY }; moved += 10;
+      if (d0 > 0) zoomAt(d1 / d0, (e.clientX + o.x) / 2 - r.left, (e.clientY + o.y) / 2 - r.top);
+    }
+  });
+  function up(e) { delete pts[e.pointerId]; if (!Object.keys(pts).length) mapEl.classList.remove('drag'); }
+  mapEl.addEventListener('pointerup', up); mapEl.addEventListener('pointercancel', up);
+  mapEl.addEventListener('wheel', function (e) {
+    e.preventDefault(); var r = mapEl.getBoundingClientRect();
+    zoomAt(e.deltaY < 0 ? 1.18 : 1 / 1.18, e.clientX - r.left, e.clientY - r.top);
+  }, { passive: false });
+  function zc(f) { var r = mapEl.getBoundingClientRect(); zoomAt(f, r.width / 2, r.height / 2); }
+  document.getElementById('zin').onclick = function () { zc(1.4); };
+  document.getElementById('zout').onclick = function () { zc(1 / 1.4); };
+  document.getElementById('zfit').onclick = fit;
+  window.addEventListener('resize', function () { clamp(); apply(); });
+
+  // ---------- render ----------
+  function swatch(t) { return t.owner ? '<span class="sw" style="background:' + esc(t.owner.color) + '"></span>' : '<span class="sw free"></span>'; }
+
+  function renderPins() {
+    Object.keys(pins).forEach(function (k) { pins[k].remove(); }); pins = {};
+    DATA.territories.forEach(function (t) {
+      if (t.x == null) return;
+      var el = document.createElement('div');
+      el.className = 'pin' + (t.owner ? '' : ' free') + (t.bid ? ' bid' : '') + (selected === t.id ? ' sel' : '');
+      el.style.left = t.x + 'px'; el.style.top = t.y + 'px';
+      if (t.owner) el.style.setProperty('--fill', t.owner.color);
+      var label = t.name + (t.owner ? ', ruled by ' + t.owner.name : ', free') + ', ' + num(t.fee) + ' LRX a week';
+      el.innerHTML = '<div class="inner"><button type="button" class="dotb" aria-label="' + esc(label) + '"><span class="dot"></span></button>' +
+        '<span class="lbl" aria-hidden="true">' + esc(t.name) + '</span></div>';
+      var go = function () { if (moved > 8) return; select(t.id, false); };
+      el.querySelector('button').addEventListener('click', go);
+      el.querySelector('.lbl').addEventListener('click', go);
+      world.appendChild(el); pins[t.id] = el;
+    });
+    schedule();
+  }
+
+  function renderLegend() {
+    var f = DATA.factions.slice().sort(function (a, b) { return b.territories - a.territories || a.name.localeCompare(b.name); });
+    var free = DATA.territories.filter(function (t) { return !t.owner; }).length;
+    var bids = DATA.territories.filter(function (t) { return t.bid; }).length;
+    var h = '<ul>';
+    f.forEach(function (x) { h += '<li><span class="sw" style="background:' + esc(x.color) + '"></span>' + esc(x.name) + '<span class="n">' + x.territories + '</span></li>'; });
+    h += '<li><span class="sw free"></span>Free<span class="n">' + free + '</span></li>';
+    if (bids) h += '<li><span class="sw bid"></span>Bid in progress<span class="n">' + bids + '</span></li>';
+    document.getElementById('legendBody').innerHTML = h + '</ul>';
+    if (legend.hidden && window.matchMedia('(max-width: 860px)').matches) legend.open = false;
+    legend.hidden = false;
+  }
+
+  function renderList() {
+    var term = q.value.trim().toLowerCase();
+    var ts = DATA.territories.slice().sort(function (a, b) { return (a.owner ? 0 : 1) - (b.owner ? 0 : 1) || b.fee - a.fee || a.name.localeCompare(b.name); });
+    tlist.innerHTML = ''; rows = {};
+    ts.forEach(function (t) {
+      var who = t.owner ? t.owner.name : 'Free';
+      if (term && (t.name + ' ' + who).toLowerCase().indexOf(term) === -1) return;
+      var li = document.createElement('li');
+      li.innerHTML = '<button type="button"' + (selected === t.id ? ' aria-current="true"' : '') + '>' +
+        (t.owner ? '<span class="sw" style="--fill:' + esc(t.owner.color) + '"></span>' : '<span class="sw free"></span>') +
+        '<span class="nm">' + esc(t.name) + '<small>' + esc(who) + (t.bid ? ' · bid in progress' : '') + '</small></span>' +
+        '<span class="fee">' + num(t.fee) + ' LRX</span></button>';
+      li.querySelector('button').onclick = function () { select(t.id, true); };
+      tlist.appendChild(li); rows[t.id] = li;
+    });
+    if (!tlist.children.length) tlist.innerHTML = '<li class="how" style="padding:8px">No territory matches.</li>';
+  }
+
+  function renderDetail() {
+    var t = null;
+    DATA.territories.forEach(function (x) { if (x.id === selected) t = x; });
+    if (!t) { detail.innerHTML = '<p class="empty">Click a territory on the map, or in the list below, to see who rules it, its weekly fee and its resources.</p>'; return; }
+    var now = Date.now(), h = '<h2>' + esc(t.name) + '</h2>';
+    if (t.description) h += '<p class="desc">' + esc(t.description) + '</p>';
+    h += t.owner ? '<span class="owner"><span class="sw" style="background:' + esc(t.owner.color) + '"></span>' + esc(t.owner.name) + '</span>'
+                 : '<span class="owner"><span class="sw" style="background:rgba(255,255,255,.6);border-style:dashed"></span>Free</span>';
+    h += '<dl class="facts">';
+    h += '<dt>Weekly fee</dt><dd><span class="big lrx">' + num(t.fee) + ' LRX</span>' + (t.owner && t.fee !== t.baseFee ? ' <span class="how">(base ' + num(t.baseFee) + ')</span>' : '') + '</dd>';
+    if (t.owner) {
+      if (t.since) h += '<dt>Ruled since</dt><dd>' + dateOnly(t.since) + '</dd>';
+      if (t.paidUntil) h += '<dt>Paid until</dt><dd>' + dateTime(t.paidUntil) + '</dd>';
+    }
+    if (DATA.nextPayday) h += '<dt>Next payday</dt><dd>' + dateTime(DATA.nextPayday) + ' <span class="how">(in ' + span(DATA.nextPayday - now) + ')</span></dd>';
+    if (t.worldX != null) h += '<dt>Location</dt><dd><span class="how">X ' + num(t.worldX) + ', Z ' + num(t.worldZ) + '</span></dd>';
+    h += '</dl>';
+    if (t.bid) {
+      h += '<div class="alert"><strong>Bid in progress.</strong> <b>' + esc(t.bid.faction.name) + '</b> offers <b>' + num(t.bid.amount) + ' LRX</b> a week. ' +
+        'It changes hands in <b>' + span(t.bid.deadline - now) + '</b> unless ' + (t.owner ? esc(t.owner.name) : 'the owner') + ' matches it at ' + num(t.bid.matchPrice) + ' LRX.</div>';
+    }
+    h += '<div class="box"><h3>Weekly resources</h3>';
+    var r = t.resources;
+    if (!r) h += '<p class="how" style="margin:0">Not listed yet.</p>';
+    else {
+      var parts = [];
+      (r.items || []).forEach(function (i) { parts.push('<li>' + num(i.count) + ' × ' + esc(i.name) + '</li>'); });
+      if (r.coins) parts.push('<li><span class="coins">' + num(r.coins) + ' coins</span></li>');
+      if (r.lrx) parts.push('<li><span class="lrx">' + num(r.lrx) + ' LRX</span> for the faction</li>');
+      h += parts.length ? '<ul>' + parts.join('') + '</ul>' : '<p class="how" style="margin:0">Nothing this week.</p>';
+    }
+    h += '</div>';
+    if (t.siegeBase) h += '<p class="how">' + esc(SIEGE[t.siegeBase] || 'Siege base: ' + t.siegeBase) + '</p>';
+    h += '<p class="how">' + (t.owner
+      ? 'To take it, bid more than its fee: <code>/t overtake ' + esc(t.id) + ' &lt;LRX&gt;</code>. The owner then has 24 h to match.'
+      : 'Free: claim it with <code>/t overtake ' + esc(t.id) + ' ' + t.baseFee + '</code> or more.') + '</p>';
+    detail.innerHTML = h;
+  }
+
+  function select(id, center) {
+    selected = id;
+    Object.keys(pins).forEach(function (k) { pins[k].classList.toggle('sel', k === id); });
+    schedule();
+    Object.keys(rows).forEach(function (k) { var b = rows[k].querySelector('button'); if (k === id) b.setAttribute('aria-current', 'true'); else b.removeAttribute('aria-current'); });
+    renderDetail();
+    if (center) DATA.territories.forEach(function (t) { if (t.id === id) centerOn(t); });
+    if (window.matchMedia('(max-width: 860px)').matches && !center) detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    try { history.replaceState(null, '', '#' + id); } catch (e) {}
+  }
+
+  function renderMeta() {
+    var held = DATA.territories.filter(function (t) { return t.owner; }).length;
+    meta.innerHTML = '<b>' + held + '</b> of ' + DATA.territories.length + ' territories ruled · ' +
+      (DATA.nextPayday ? 'next payday ' + dateTime(DATA.nextPayday) + ' · ' : '') + 'updated ' + ago(DATA.updated);
+  }
+
+  var LIVE = 'https://raw.githubusercontent.com/paullecrocq/lotr-reborn/data/conquest/data.json';
+  function load(first) {
+    // Live data: pushed by the server to the "data" branch of the GitHub repository (no site rebuild);
+    // the copy next to this page is only a fallback.
+    function get(url) {
+      return fetch(url, { cache: 'no-store' }).then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); });
+    }
+    get(LIVE + '?t=' + Math.floor(Date.now() / 60000)).catch(function () {
+      return get('data.json?t=' + Date.now());
+    }).then(function (d) {
+      DATA = d; renderPins(); renderLegend(); renderList(); renderMeta();
+      if (!fitted) { fitted = true; fit(); var h = location.hash.slice(1); if (h) select(h, true); }
+      if (selected) renderDetail();
+    }).catch(function () {
+      if (first) meta.textContent = 'The territory data could not be loaded. Try again in a moment.';
+    });
+  }
+  q.addEventListener('input', function () { if (DATA) renderList(); });
+  apply();
+  load(true);
+  setInterval(function () { load(false); }, 60000);
+  setInterval(function () { if (DATA) { renderMeta(); if (selected) renderDetail(); } }, 30000);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,766 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LOTR Reborn Info Center</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+SC:wght@500;700&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* Layout: a field-guide — fixed index of chapters on the left, one long reading column on the right; tables for numbers, mono for anything typed in chat. */
+:root {
+  --bg: #eef0ea;
+  --panel: #f8f9f5;
+  --ink: #1d2621;
+  --muted: #5b6760;
+  --line: #d3d9d1;
+  --accent: #2c5b86;     /* mithril blue */
+  --gold: #8f6a1c;       /* coin gold, readable on light */
+  --gold-bg: #f3e9cf;
+  --cmd-bg: #e2e8e3;
+  --warn: #9a3324;
+  --warn-bg: #f6e3de;
+  --f-display: "Cormorant SC", "Cormorant Garamond", Georgia, serif;
+  --f-body: "Alegreya Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono: "JetBrains Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #111614; --panel: #18201c; --ink: #e2e8e1; --muted: #9aa7a0; --line: #2c3731;
+    --accent: #8fb6dd; --gold: #d8b45e; --gold-bg: #2d2717; --cmd-bg: #222c27;
+    --warn: #f0a08f; --warn-bg: #3a221d; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #111614; --panel: #18201c; --ink: #e2e8e1; --muted: #9aa7a0; --line: #2c3731;
+  --accent: #8fb6dd; --gold: #d8b45e; --gold-bg: #2d2717; --cmd-bg: #222c27;
+  --warn: #f0a08f; --warn-bg: #3a221d; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body {
+  background: var(--bg); color: var(--ink);
+  font-family: var(--f-body); font-size: 17px; line-height: 1.6;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+a { color: var(--accent); }
+a:focus-visible, button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.shell { max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: 230px minmax(0, 1fr); gap: 48px; padding-block: 40px 80px; }
+nav.index { position: sticky; top: calc(24px + env(safe-area-inset-top, 0px)); align-self: start; }
+nav.index .brand { font-family: var(--f-display); font-size: 1.5rem; font-weight: 700; letter-spacing: .04em; line-height: 1.1; color: var(--ink); text-decoration: none; display: block; }
+nav.index .brand small { display: block; font-family: var(--f-body); font-size: .8rem; font-weight: 500; letter-spacing: .14em; text-transform: uppercase; color: var(--gold); margin-top: 6px; }
+nav.index ol { list-style: none; padding: 0; margin: 24px 0 0; display: grid; gap: 2px; counter-reset: ch; }
+nav.index li a { display: block; padding: 6px 10px; border-radius: 6px; color: var(--muted); text-decoration: none; font-size: .95rem; }
+nav.index li a:hover { color: var(--ink); background: var(--panel); }
+nav.index li a.on { color: var(--ink); background: var(--panel); font-weight: 700; }
+
+main { min-width: 0; }
+header.hero { padding-bottom: 28px; border-bottom: 1px solid var(--line); margin-bottom: 8px; }
+header.hero .eyebrow { font-size: .8rem; letter-spacing: .16em; text-transform: uppercase; color: var(--gold); font-weight: 700; }
+header.hero h1 { font-family: var(--f-display); font-weight: 700; font-size: clamp(2.3rem, 5vw, 3.4rem); line-height: 1.05; margin: 8px 0 12px; text-wrap: balance; letter-spacing: .02em; }
+header.hero p { max-width: 64ch; color: var(--muted); margin: 0; font-size: 1.08rem; }
+.quick { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.quick a { font-size: .9rem; padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; text-decoration: none; color: var(--ink); background: var(--panel); }
+.quick a:hover { border-color: var(--accent); }
+
+section { padding-top: 40px; scroll-margin-top: 16px; }
+section > h2 { font-family: var(--f-display); font-weight: 700; font-size: 2rem; letter-spacing: .03em; margin: 0 0 4px; text-wrap: balance; }
+section > .lede { color: var(--muted); margin: 0 0 18px; max-width: 64ch; }
+h3 { font-size: 1.12rem; margin: 26px 0 6px; }
+p, ul, ol.steps { max-width: 68ch; }
+ul { padding-left: 1.2em; margin: 6px 0 12px; }
+li { margin: 3px 0; }
+code, .cmd { font-family: var(--f-mono); font-size: .86em; background: var(--cmd-bg); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+.coins { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
+.note { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 12px 16px; max-width: 68ch; margin: 14px 0; }
+.note.warn { background: var(--warn-bg); border-color: transparent; color: var(--ink); }
+.note.warn strong { color: var(--warn); }
+.note.gold { background: var(--gold-bg); border-color: transparent; }
+
+.tablewrap { overflow-x: auto; margin: 10px 0 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+table { border-collapse: collapse; width: 100%; font-size: .95rem; }
+th, td { text-align: left; padding: 8px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: .78rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 700; background: transparent; }
+tr:last-child td { border-bottom: 0; }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+ol.steps { counter-reset: s; list-style: none; padding: 0; display: grid; gap: 10px; }
+ol.steps li { counter-increment: s; display: grid; grid-template-columns: 30px minmax(0, 1fr); gap: 10px; margin: 0; }
+ol.steps li::before { content: counter(s); font-family: var(--f-display); font-weight: 700; font-size: 1.2rem; color: var(--gold); text-align: right; line-height: 1.4; }
+
+.calc { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; max-width: 68ch; }
+.calc label { font-weight: 700; }
+.calc input { font: inherit; font-family: var(--f-mono); width: 11ch; padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); }
+.calc output { color: var(--muted); min-width: 0; }
+.calc output b { color: var(--ink); }
+
+.search { display: flex; gap: 10px; align-items: center; margin: 4px 0 8px; max-width: 68ch; }
+.search input { flex: 1; min-width: 0; font: inherit; padding: 8px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--ink); }
+.search span { color: var(--muted); font-size: .9rem; white-space: nowrap; }
+#cmds td:first-child { white-space: nowrap; }
+#cmds td.cat { color: var(--muted); font-size: .85rem; white-space: nowrap; }
+
+footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
+
+@media (max-width: 860px) {
+  .shell { grid-template-columns: minmax(0, 1fr); gap: 0; padding-block: 0 60px; }
+  nav.index { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; border-bottom: 1px solid var(--line); margin-left: calc(-1 * max(16px, env(safe-area-inset-left, 0px))); margin-right: calc(-1 * max(16px, env(safe-area-inset-right, 0px))); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  nav.index .brand { display: none; }
+  nav.index ol { margin: 0; display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  nav.index li a { white-space: nowrap; }
+  header.hero { padding-top: 24px; }
+  body { font-size: 16px; }
+}
+</style>
+
+</head>
+<body>
+<div class="shell">
+  <nav class="index" aria-label="Chapters">
+    <a class="brand" href="#top">LOTR Reborn<small>Info Center</small></a>
+    <ol>
+      <li><a href="#start">First steps</a></li>
+      <li><a href="#lrx">LRX &amp; levels</a></li>
+      <li><a href="#abilities">Abilities</a></li>
+      <li><a href="#economy">Coins &amp; shops</a></li>
+      <li><a href="#rings">Magic rings</a></li>
+      <li><a href="#factions">Factions</a></li>
+      <li><a href="#war">Wars &amp; territories</a></li>
+      <li><a href="#putsch">Secession &amp; putsch</a></li>
+      <li><a href="#travel">Teleports &amp; homes</a></li>
+      <li><a href="#death">Death &amp; inventory</a></li>
+      <li><a href="#build">Build world</a></li>
+      <li><a href="#quests">Quests</a></li>
+      <li><a href="#dungeon">The dungeon</a></li>
+      <li><a href="#pvp">PvP arena</a></li>
+      <li><a href="#casino">Casino</a></li>
+      <li><a href="#community">Events &amp; chat</a></li>
+      <li><a href="#subscription">Subscription</a></li>
+      <li><a href="#rules">Rules &amp; fair play</a></li>
+      <li><a href="#commands">All commands</a></li>
+    </ol>
+  </nav>
+
+  <main id="top">
+    <header class="hero">
+      <div class="eyebrow">Middle-earth survival · LOTR Mod 1.7.10</div>
+      <h1>LOTR Reborn Info Center</h1>
+      <p>Everything the server adds on top of the LOTR Mod: how to earn LRX and coins, what abilities and rings do, how factions compete, go to war and rule territories, quests, the dungeon, the market, the PvP arena, the subscription, and the rules that keep it fair. Every number on this page comes from the server's own settings.</p>
+      <div class="quick">
+        <a href="#start">New here?</a>
+        <a href="#lrx">Level calculator</a>
+        <a href="#abilities">Abilities</a>
+        <a href="#war">Territories</a>
+        <a href="conquest/">Live conquest map</a>
+        <a href="#commands">Search a command</a>
+      </div>
+    </header>
+
+    <section id="start">
+      <h2>First steps</h2>
+      <p class="lede">You arrive in the lobby, a safe zone where nobody can fight or build.</p>
+      <ol class="steps">
+        <li><span><b>Pick a faction.</b> See them all with <code>/faction list</code>, then join with <code>/faction join &lt;faction&gt;</code>. Your faction's leader (or a rank allowed to) can set a faction home you can teleport to.</span></li>
+        <li><span><b>Head into Middle-earth.</b> Play the LOTR Mod as usual. Killing NPCs, mining ores and harvesting crops earns you <a href="#lrx">LRX</a>.</span></li>
+        <li><span><b>Claim your levels.</b> When you level up, type <code>/lrx claim</code> to collect your coins and any ability unlocked.</span></li>
+        <li><span><b>Spend wisely.</b> Coins go to your <a href="#economy">vault</a>. The lobby shops sell magic rings, ability uses and faction crafting tables.</span></li>
+        <li><span><b>Look for quests.</b> Some NPCs have <a href="#quests">quests</a> for you: right-click them to talk.</span></li>
+        <li><span><b>Come back any time</b> with <code>/lobby</code>. The LOTR menu (press <code>L</code>) holds the map, fellowships and shield customisation.</span></li>
+      </ol>
+      <div class="note"><strong>Good to know:</strong> in Middle-earth you <a href="#death">keep your inventory when you die</a>. Use <code>/home set</code> and <code>/home</code> to save a spot and return to it.</div>
+    </section>
+
+    <section id="lrx">
+      <h2>LRX &amp; levels</h2>
+      <p class="lede">LRX is the server's experience. It is separate from vanilla XP and never lost on death.</p>
+      <h3>How you earn LRX</h3>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Action</th><th class="num">LRX</th></tr></thead>
+        <tbody>
+          <tr><td>Peaceful animals (deer, horses, elk, zebras, birds, fish…)</td><td class="num">1</td></tr>
+          <tr><td>Wild beasts (bears, lions, crocodiles, boars, rhinos, scorpions, crebain…)</td><td class="num">2</td></tr>
+          <tr><td>Most LOTR NPCs: soldiers, archers, villagers, traders, orcs, wargs…</td><td class="num">3</td></tr>
+          <tr><td>Elite fighters: Uruk-hai and Black Uruks, axe throwers, crossbowmen, fire throwers, Barrow-wights, creatures of Utumno</td><td class="num">4</td></tr>
+          <tr><td>Captains, chieftains, banner bearers, half-trolls, wraiths</td><td class="num">5</td></tr>
+          <tr><td>Trolls (cave, hill, mountain, snow, Olog-hai…) and Ents</td><td class="num">10</td></tr>
+          <tr><td>Legendary beings: Balrog, Saruman, Gandalf, Gollum, Mallorn Ent, Mountain Troll Chieftain</td><td class="num">100</td></tr>
+          <tr><td>Coal, iron, gold or lapis ore</td><td class="num">1</td></tr>
+          <tr><td>Harvesting a ripe crop: wheat, carrots, potatoes, nether wart, pumpkin, melon, and the LOTR lettuce, pipeweed, flax, leek, turnip, yam, grapes, corn and berries (right-click to pick corn, berries and grapes)</td><td class="num">1 · 30% chance</td></tr>
+          <tr><td>Breaking any block except crops (survival)</td><td class="num">1 per ~33</td></tr>
+          <tr><td>Placing any block except crops and seeds (survival)</td><td class="num">1 per 20</td></tr>
+        </tbody>
+      </table></div>
+      <p>Your total and your progress to the next level: <code>/lrx</code>. Someone else's: <code>/lrx &lt;player&gt;</code>. If you are in a faction, your leader may take a share of what you earn for the faction (the <a href="#factions">levy</a>).</p>
+      <p>Each time you earn LRX, a bar at the top of the screen shows your level and progress for a few seconds. <code>/lrx bar always</code> keeps it on screen, <code>/lrx bar off</code> hides it, <code>/lrx bar on</code> brings back the default.</p>
+
+      <h3>Levels and rewards</h3>
+      <p>Each level needs a bit more LRX than the one before. Levels are not paid automatically: type <code>/lrx claim</code> to collect every level you have reached since your last claim. Each level pays <span class="coins">1,000 × the level</span> in coins, straight into your vault, and some levels also unlock an ability.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th class="num">Level</th><th class="num">Total LRX needed</th><th class="num">Coins for this level</th><th>Ability unlocked</th></tr></thead>
+        <tbody>
+          <tr><td class="num">1</td><td class="num">500</td><td class="num">1,000</td><td></td></tr>
+          <tr><td class="num">2</td><td class="num">1,000</td><td class="num">2,000</td><td></td></tr>
+          <tr><td class="num">3</td><td class="num">2,000</td><td class="num">3,000</td><td></td></tr>
+          <tr><td class="num">4</td><td class="num">3,500</td><td class="num">4,000</td><td></td></tr>
+          <tr><td class="num">5</td><td class="num">5,500</td><td class="num">5,000</td><td>Hand of Yavanna</td></tr>
+          <tr><td class="num">10</td><td class="num">23,000</td><td class="num">10,000</td><td>Featherweight</td></tr>
+          <tr><td class="num">15</td><td class="num">53,000</td><td class="num">15,000</td><td>Vein Miner</td></tr>
+          <tr><td class="num">20</td><td class="num">95,500</td><td class="num">20,000</td><td>Adrenaline</td></tr>
+          <tr><td class="num">25</td><td class="num">150,500</td><td class="num">25,000</td><td>Unbreakable</td></tr>
+          <tr><td class="num">50</td><td class="num">613,000</td><td class="num">50,000</td><td></td></tr>
+          <tr><td class="num">100</td><td class="num">2,475,500</td><td class="num">100,000</td><td>Bountiful</td></tr>
+        </tbody>
+      </table></div>
+      <div class="calc" role="group" aria-label="Level calculator">
+        <label for="lrxIn">Your total LRX</label>
+        <input id="lrxIn" type="number" min="0" step="1" value="12000" inputmode="numeric">
+        <output id="lrxOut" for="lrxIn"></output>
+      </div>
+    </section>
+
+    <section id="abilities">
+      <h2>Abilities</h2>
+      <p class="lede">Abilities are permanent upgrades you put on one item. You earn uses by levelling up or buy them in the lobby ability shop; prices are shown in game only.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Ability</th><th>Goes on</th><th>Effect</th><th class="num">Unlocked at</th></tr></thead>
+        <tbody>
+          <tr><td><b>Hand of Yavanna</b><br><code>/handofyavanna</code></td><td>A hoe</td><td>Harvesting a ripe crop replants it for you. The hoe also becomes unbreakable.</td><td class="num">Level 5</td></tr>
+          <tr><td><b>Featherweight</b><br><code>/featherweight</code></td><td>Boots</td><td>Fall damage is halved.</td><td class="num">Level 10</td></tr>
+          <tr><td><b>Vein Miner</b><br><code>/veinminer</code></td><td>A pickaxe or mattock</td><td>Mining an ore block while sneaking mines the whole vein, up to 64 blocks. Works on every ore: vanilla, LOTR (copper, tin, silver, mithril, gems…) and other mods.</td><td class="num">Level 15</td></tr>
+          <tr><td><b>Adrenaline</b><br><code>/adrenaline</code></td><td>A chestplate</td><td>When you take damage you get Regeneration II for 3 seconds, at most once a minute.</td><td class="num">Level 20</td></tr>
+          <tr><td><b>Unbreakable</b><br><code>/unbreakable</code></td><td>Any item with durability</td><td>The item never wears out.</td><td class="num">Level 25</td></tr>
+          <tr><td><b>Bountiful</b><br><code>/bountiful</code></td><td>Any tool or weapon</td><td>All LRX you earn while holding it is doubled.</td><td class="num">Level 100</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Applying an ability</h3>
+      <ol class="steps">
+        <li><span>Check your uses with <code>/abilities</code>.</span></li>
+        <li><span>Hold the item, then type the ability's command, for example <code>/unbreakable</code>.</span></li>
+        <li><span>Type the same command again within 15 seconds to confirm. One use is spent.</span></li>
+      </ol>
+      <div class="note warn"><strong>It cannot be undone.</strong> The ability stays on that item forever, and each item can carry each ability only once. The item's description shows its abilities.</div>
+    </section>
+
+    <section id="economy">
+      <h2>Coins &amp; shops</h2>
+      <p class="lede">Coins are the server's currency. Your balance lives in a personal vault, safe from death and theft.</p>
+      <h3>The vault</h3>
+      <ul>
+        <li><code>/vault</code> shows your balance.</li>
+        <li><code>/vault deposit</code> turns the coins in your inventory into balance. Coin items are worth <span class="coins">1</span>, <span class="coins">10</span> and <span class="coins">100</span>.</li>
+        <li><code>/vault withdraw &lt;amount&gt;</code> gives you coin items back, for trading with other players.</li>
+        <li><code>/vault top</code> lists the richest players.</li>
+        <li><code>/vault auto on</code> deposits coins automatically as soon as they reach your inventory (picked up, sold, looted), with a chat message each time. Coins you were already carrying, or that you just withdrew, stay with you. <code>/vault auto off</code> stops it.</li>
+      </ul>
+      <p>Level rewards, shop purchases, casino bets and secessions all use your vault balance directly.</p>
+      <h3>Lobby shops</h3>
+      <p>Right-click a shop sign in the lobby to buy; the price is shown on the sign in game and taken from your vault.</p>
+      <ul>
+        <li><b>Magic rings</b>. See <a href="#rings">Magic rings</a>.</li>
+        <li><b>Ability uses</b>. See <a href="#abilities">Abilities</a>.</li>
+        <li><b>Faction crafting tables</b>, 27 of them (Gondor, Rohan, Mordor, Dwarven, High Elven, Hobbit, Umbar…).</li>
+        <li><b>Commander and smith spawn eggs</b>: hire a faction commander, or set up your own smith. Bought by mistake? Hold the egg and type <code>/eggreturn</code> within 48 hours to get your coins back (only for eggs you bought yourself).</li>
+      </ul>
+      <h3>The market</h3>
+      <p><code>/market</code> (or <code>/ah</code>, <code>/marketplace</code>), or the market blocks in the lobby, open the market: every player offer, sorted, with a search. The <b>Server shop</b> page (<code>/market shop</code>) sells items from the server with unlimited stock.</p>
+      <ul>
+        <li><b>Sell</b> the stack in your hand: <code>/market sell &lt;price&gt;</code>. Listing costs <b>2%</b> of the price, never refunded; the buyer pays the price and you receive all of it. Unsold items come back after 30 days.</li>
+        <li><b>Auction</b> it: <code>/market auction &lt;starting price&gt; &lt;duration&gt;</code> (10m to 7d). Each bid is taken from the bidder's vault at once and refunded if outbid; the next bid must be at least 5% higher. A bid in the last minute adds a minute. The seller receives the final bid minus <b>5%</b>.</li>
+        <li><code>/market buy &lt;id&gt;</code>, <code>/market bid &lt;id&gt; &lt;amount&gt;</code>, <code>/market cancel &lt;id&gt;</code>, <code>/market mine</code>, <code>/market search &lt;words&gt;</code>.</li>
+        <li>Items and coins are delivered even if you are offline or your inventory is full; you get a summary when you log in.</li>
+      </ul>
+      <h3>Trading with a player</h3>
+      <p><code>/trade &lt;player&gt;</code> opens a trade window for both of you once they accept (<code>/trade accept</code> or the button). Click your items to offer them, add coins with the buttons, then both press <b>Accept</b>. Any change cancels the agreement, and closing the window, logging out or dying gives everyone their items back.</p>
+      <div class="note">Rewards that don't fit in a full inventory are kept for you and delivered as soon as you free a slot. Nothing is dropped on the ground.</div>
+    </section>
+
+    <section id="rings">
+      <h2>Magic rings</h2>
+      <p class="lede">A ring gives you potion effects while you carry it. Only one ring works at a time. Rings are sold in the lobby; prices are shown in game only.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Ring</th><th>Effects</th><th>Must be held?</th></tr></thead>
+        <tbody>
+          <tr><td><b>Dwarven Ring</b></td><td>Haste II, Night Vision, Fire Resistance</td><td>No, hotbar is enough</td></tr>
+          <tr><td><b>Ring of Attack</b></td><td>Speed II, Jump Boost, Strength, Invisibility</td><td>Yes, in hand</td></tr>
+          <tr><td><b>Ring of Defense</b></td><td>Resistance IV, Regeneration, Invisibility</td><td>Yes, in hand</td></tr>
+          <tr><td><b>Elven Ring</b></td><td>Speed</td><td>No, hotbar is enough</td></tr>
+          <tr><td><b>Hobbit Ring</b></td><td>Saturation, Resistance, Weakness</td><td>No, hotbar is enough</td></tr>
+        </tbody>
+      </table></div>
+      <p><b>Which ring is active:</b> the ring in your hand always wins. Otherwise it is the first ring in your hotbar, counting from the left, that doesn't need to be held.</p>
+    </section>
+
+    <section id="factions">
+      <h2>Factions</h2>
+      <p class="lede">25 factions, from Gondor and Rohan to Mordor, Angmar and Umbar. Factions pool their LRX and compete every week and every month.</p>
+      <h3>Joining and belonging</h3>
+      <ul>
+        <li><code>/faction list</code>, then <code>/faction join &lt;faction&gt;</code>. You can only be in one faction; <code>/faction leave</code> to leave.</li>
+        <li>Any member can invite a player without a faction with <code>/faction invite &lt;player&gt;</code>; they join with one click.</li>
+        <li><code>/faction info [faction]</code> shows a faction's leader, LRX and members, one per line (hover a name for their join date). <code>/faction member &lt;player&gt;</code> tells you where someone belongs. <code>/faction banlist [faction]</code> shows who is banned.</li>
+        <li><code>/faction home</code> teleports you to your faction's home after 5 seconds; moving cancels it. Your mount comes with you. Your rank needs the <i>home</i> permission (given to every rank by default).</li>
+        <li>No leader? Any member can take the lead with <code>/faction overtake</code>.</li>
+      </ul>
+      <h3>Faction LRX, levy and contests</h3>
+      <ul>
+        <li>The leader (or a rank with the <i>levy</i> permission) sets a <b>levy</b> from 0 to 100% with <code>/faction levy &lt;value&gt;</code>. That share of the LRX each member earns goes to the faction's pool. Members can check the rate with <code>/faction levy</code>.</li>
+        <li>The pool decides two contests: a <b>weekly</b> one ending every <b>Friday at 20:00</b> (server time), and a <b>monthly</b> one following the calendar month. The faction with the most LRX wins; on a tie, the first to reach it.</li>
+        <li>Every faction that collects <b>10,000 LRX</b> in a week receives <span class="coins">5,000 coins</span>, winner or not.</li>
+        <li>The winner collects the prize with <code>/faction claim</code> (or <code>/faction reward</code>): the leader, or a rank with the <i>claim</i> permission. The same command collects your <a href="#war">territories'</a> weekly resources.</li>
+        <li>Standings: <code>/faction top week</code>, <code>/faction top month</code>, <code>/faction top lrx</code> (all-time) and <code>/faction top members</code>.</li>
+        <li>Who gave the most: <code>/faction contrib</code> ranks your faction's members by the LRX they gave to the faction this week, or <code>lastweek</code>, <code>month</code>, <code>lastmonth</code>.</li>
+      </ul>
+      <h3>Faction PvP</h3>
+      <p>Killing players of another faction only takes LRX from their pool when your factions are <a href="#war">at war</a>.</p>
+      <h3>Leaders, ranks and permissions</h3>
+      <p>The leader can do everything. Other ranks get only the permissions the leader gives them:</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Permission</th><th>Allows</th></tr></thead>
+        <tbody>
+          <tr><td><code>sethome</code></td><td>Set the faction home (<code>/faction home set</code>)</td></tr>
+          <tr><td><code>home</code></td><td>Use the faction home (every rank has it by default)</td></tr>
+          <tr><td><code>kick</code></td><td>Kick lower-ranked members (<code>/faction kick &lt;player&gt;</code>)</td></tr>
+          <tr><td><code>ban</code></td><td>Ban and unban lower-ranked members (<code>/faction ban</code>, <code>/faction unban</code>)</td></tr>
+          <tr><td><code>levy</code></td><td>Change the levy rate</td></tr>
+          <tr><td><code>claim</code></td><td>Collect contest prizes and territory resources (<code>/faction claim</code>)</td></tr>
+          <tr><td><code>territory</code></td><td>Bid for, keep, cancel a bid on, or abandon territories</td></tr>
+          <tr><td><code>all</code></td><td>Everything above, plus managing ranks below their own</td></tr>
+        </tbody>
+      </table></div>
+      <ul>
+        <li>Ranks: <code>/faction rank add &lt;name&gt;</code>, <code>/faction rank &lt;player&gt; &lt;rank&gt;</code>, reorder with <code>moveup</code>/<code>movedown</code>, rename with <code>rename</code>, set permissions with <code>/faction rank perm &lt;rank&gt; &lt;permission&gt; on|off</code>. Ranks show in front of names in chat.</li>
+        <li>Members can only kick or ban someone ranked below them.</li>
+        <li><code>/faction resign</code> lets the leader step down.</li>
+      </ul>
+    </section>
+
+    <section id="war">
+      <h2>Wars &amp; territories</h2>
+      <p class="lede">24 territories, from Erebor and Minas Tirith to Barad Dur and Umbar, can be ruled by factions. Wars decide who keeps them.</p>
+      <div class="note gold"><strong>Live map:</strong> see who rules what, every fee and every territory's resources on the <a href="conquest/">conquest map</a> (in game: <code>/conquestmap</code>).</div>
+      <h3>Ruling a territory</h3>
+      <ul>
+        <li><code>/territory list</code> (or <code>/t list</code>) shows every territory, its owner and its weekly fee, plus what your faction owes. <code>/t info &lt;territory&gt;</code> gives the details, <code>/t faction [faction]</code> what a faction rules.</li>
+        <li><b>Claim</b> one with <code>/t overtake &lt;territory&gt; &lt;LRX&gt;</code> (or <code>/t bid</code>). Your bid becomes its <b>weekly fee</b>, paid from your faction's LRX pool. A free territory needs at least its base fee (500 LRX) and is yours at once; the first week is paid immediately.</li>
+        <li><b>Taking one from another faction:</b> bid more than its current fee. The owner has <b>24 hours</b> to keep it with <code>/t match &lt;territory&gt;</code>, which raises its fee to your bid +10%. If they don't, it changes hands and you pay your first week. A higher bid from another faction replaces yours. <code>/t cancel &lt;territory&gt;</code> withdraws your bid.</li>
+        <li>A held territory's fee never goes down. <code>/t abandon &lt;territory&gt;</code> gives it up (no refund; your faction can't take it back for 7 days).</li>
+      </ul>
+      <h3>Payday and resources</h3>
+      <ul>
+        <li>Every <b>Sunday at 20:00</b> (server time) the pool pays one week for each territory. You're warned the day before if it can't cover everything.</li>
+        <li>When the pool runs short, territories the leader marked with <code>/t keep &lt;territory&gt;</code> are paid first, then the cheapest; the most expensive are lost first.</li>
+        <li>Each paid week adds the territory's resources to your faction's storage (up to 2 weeks waiting). Collect them with <code>/faction claim</code>: items and coins go to whoever claims, LRX tokens to the pool.</li>
+      </ul>
+      <h3>Siege bases and the 3-territory limit</h3>
+      <div class="note gold"><strong>Building a siege base?</strong> Read the <a href="siege-rules/">Siege Base Rules</a> first: the staff checks every base against them before validating it.</div>
+      <ul>
+        <li>A faction can rule <b>3 territories</b>, plus <b>3 more for every siege base validated by the staff</b>: 6 with one base, 9 with two, and so on. A base still being built, or reopened for changes, doesn't count. Above your limit, the last territories in your payment order are lost, so get another base validated before reopening one.</li>
+        <li>A siege base is a fortress built in the <a href="#build">build world</a> and tied to one territory; ask the staff to create one. The leader invites builders with <code>/plot invite</code>; they find it with <code>/plot find &lt;territory&gt;</code>. Only members of the faction holding the territory can enter it.</li>
+        <li>When it's finished, the leader submits it with <code>/faction siegebase &lt;territory&gt; submit</code>; the staff checks it, and once validated it can be besieged. <code>/faction siegebase &lt;territory&gt; reopen</code> unlocks it for changes.</li>
+        <li>What a base needs: a <b>diamond block</b> (defenders' spawn), a <b>redstone block</b> (attackers' spawn) and <b>emerald</b> (the capture area). The defenders' spawn must be at least <b>30 blocks</b> from the capture area, and not in the same room.</li>
+        <li><b>Gates</b> are LOTR gate blocks. Every gate must stand upright and be at least <b>3x3</b>, so a ram can break it. Builders set each gate's health with <code>/siegegate</code> (look at the gate): up to <b>200 HP</b> per gate and <b>1000 HP</b> for all the gates of the base. <code>/siegegate list</code> shows them all.</li>
+        <li>The floor is 5 blocks thick: dig trenches and holes as you like, but the bottom layer can never be broken.</li>
+      </ul>
+      <h3>War</h3>
+      <ul>
+        <li>A leader declares war with <code>/faction war declare &lt;faction&gt;</code>. Both factions need at least <b>2,000 LRX</b> in their pool. Fighting starts <b>24 hours</b> later.</li>
+        <li>During a war, killing an enemy takes <b>1%</b> of their faction's pool for yours (<b>2%</b> for their leader, at least 10 LRX). The same player can only be robbed once every 10 minutes, and never in safe zones, the PvP arena, events or the build world.</li>
+        <li>A faction whose pool falls below <b>1,000 LRX</b> loses the war. The winner takes <b>every territory</b> the loser held.</li>
+        <li>Leaders can negotiate with <code>/faction war armistice</code>: LRX, coins and territories in both directions. Offers last 48 hours; signing ends the war.</li>
+        <li>After a war, the same two factions can't fight again for 7 days. <code>/faction war info &lt;faction&gt;</code> shows any faction's wars.</li>
+      </ul>
+      <h3>Sieges</h3>
+      <ul>
+        <li>During a war, the leader (or a rank with <i>all</i>) can besiege an enemy territory whose base is validated: <code>/faction war siege &lt;faction&gt; &lt;territory&gt;</code>. The attacker proposes weekend times, the defender picks one within 3 days.</li>
+        <li>Registration opens 15 minutes before, for the two factions only: stand in the event area until the start. Only registered players fight; nobody can join once it has started. <code>/siege</code> lists the planned sieges.</li>
+        <li>The siege base is copied into the PvP arena and the battle starts at once. Bring <b>your own gear</b>: you keep it when you die. Leaving the arena takes you out of the siege for good.</li>
+        <li><b>The goal</b>: the attackers must hold the capture area (outnumber the defenders on it) for <b>500 seconds in total</b> within <b>45 minutes</b>. Being pushed off pauses the count, it doesn't reset it. If time runs out, the defenders win.</li>
+        <li><b>Respawns</b>: attackers come back at once; defenders wait <b>15 seconds</b> at their spawn.</li>
+        <li><b>Siege equipment</b>: the attackers' commander (their leader, or the highest rank present) receives the bombs, rams and torches and drops them to his players. Only attackers can pick them up.</li>
+        <li><b>Gates</b>: attackers can't open them. Right-click a gate with the <b>siege ram</b> to set it up in front of it. It lies on the ground until at least <b>half of the living attackers</b> (2 minimum) stand next to it; then they lift it and it strikes every 2 seconds for <b>10 HP</b>. When a gate reaches 0 HP, it falls.</li>
+        <li><b>Bombs</b>: place a <b>siege bomb</b>, wait 5 seconds, then right-click it with a <b>siege torch</b>: it explodes a second later, breaking walls around it. Defenders can break a bomb before it is lit. Bombs never break gates, spawns, the capture area or the arena's floor and ceiling.</li>
+      </ul>
+    </section>
+
+    <section id="putsch">
+      <h2>Secession &amp; putsch</h2>
+      <p class="lede">Members unhappy with their leader can break away and fight for the faction.</p>
+      <ol class="steps">
+        <li><span><b>Secession.</b> A member of <b>at least 2 weeks</b> pays a fee (shown in game) and starts it with <code>/faction secession</code>. They become the separatist leader. Other members can join it with the same command.</span></li>
+        <li><span><b>Separatists.</b> Players outside any faction can join with <code>/faction join &lt;faction&gt; separatists</code>.</span></li>
+        <li><span><b>Declaring the putsch.</b> After <b>3 days</b>, the separatist leader declares it with <code>/faction putsch</code>, proposing weekend dates.</span></li>
+        <li><span><b>Picking the date.</b> The faction leader has <b>3 days</b> to choose one of the dates; if they don't, the earliest one is used.</span></li>
+        <li><span><b>The fight.</b> Registration opens 15 minutes before, in the event area, for that faction's members and its separatists only. Everyone keeps their inventory and has <b>5 respawns</b>. Logging out eliminates you. The last side standing wins.</span></li>
+        <li><span><b>The outcome.</b> If the separatists win, their leader takes over the faction. If they lose, the secession ends. A faction can't face another secession for <b>14 days</b>.</span></li>
+      </ol>
+    </section>
+
+    <section id="travel">
+      <h2>Teleports &amp; homes</h2>
+      <h3>Teleport requests</h3>
+      <ul>
+        <li><code>/tpa &lt;player&gt;</code> asks to go to them; <code>/tpahere &lt;player&gt;</code> asks them to come to you.</li>
+        <li>The other player accepts with <code>/tpa</code>, <code>/tpaccept</code> or the clickable button, or refuses with <code>/tpdeny</code>. Cancel your own with <code>/tpacancel</code>.</li>
+        <li>Requests expire after <b>20 seconds</b>. The teleport happens <b>3 seconds</b> after accepting; you can move meanwhile, but getting hit cancels it.</li>
+        <li>Your horse, warg or other mount comes along.</li>
+      </ul>
+      <h3>Homes</h3>
+      <ul>
+        <li><code>/home set</code> saves your home; <code>/home</code> takes you back there, mount included.</li>
+        <li>You can't set a home inside a safe zone such as the lobby.</li>
+      </ul>
+      <div class="note warn"><strong>Combat lock.</strong> Hitting a player, or being hit by one, puts both of you in combat for <b>30 seconds</b>: no <code>/tpa</code>, no <code>/home</code>, no <code>/faction home</code>, and pending teleports are cancelled. Don't log out while in combat.</div>
+      <p>Teleports never cross between the survival world and the <a href="#build">build world</a>; use <code>/build</code> for that.</p>
+    </section>
+
+    <section id="death">
+      <h2>Death &amp; inventory</h2>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Where you die</th><th>Your inventory</th></tr></thead>
+        <tbody>
+          <tr><td>Middle-earth</td><td>Kept. You respawn with everything.</td></tr>
+          <tr><td>Utumno</td><td>Kept only during your first minute there, then dropped as usual.</td></tr>
+          <tr><td>Putsch fights</td><td>Kept.</td></tr>
+          <tr><td>Anywhere else (vanilla Overworld, Nether, End)</td><td>Dropped, vanilla rules.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Your vault balance, LRX and abilities are never lost. In Utumno the virtual chest (<code>/vchest</code>) is not available.</p>
+    </section>
+
+    <section id="build">
+      <h2>Build world</h2>
+      <p class="lede">A flat creative world for designing builds, with its own inventory.</p>
+      <ul>
+        <li><code>/build</code> takes you there and back. Your survival inventory is stored safely and given back when you return, at the exact spot you left.</li>
+        <li>Find a free plot with <code>/plot find 1</code> (32×32), <code>2</code> (64×64) or <code>3</code> (128×128), then claim it with <code>/plot create &lt;name&gt; &lt;size&gt;</code>.</li>
+        <li>Visitors are welcome. Let friends build with <code>/plot invite &lt;plot&gt; &lt;player&gt;</code>, keep someone out with <code>/plot ban</code>, change the floor with <code>/plot setground</code>. See <code>/plot help</code>.</li>
+        <li>No mobs, TNT, fire or ender chests there, and nothing earns LRX or stats.</li>
+      </ul>
+    </section>
+
+    <section id="quests">
+      <h2>Quests</h2>
+      <p class="lede">Some NPCs of Middle-earth have stories to tell and tasks to give.</p>
+      <ul>
+        <li>Right-click a quest NPC to talk: one line per click. When they're done talking, your objective appears in chat.</li>
+        <li>Objectives can be to bring items, slay creatures, reach a place, find something hidden… Some quests only open once you've finished another.</li>
+        <li>Finishing a quest pays its reward. <code>/quest</code> shows your quests and current objectives, <code>/quest done</code> the ones you've finished, <code>/quest abandon &lt;quest&gt;</code> gives one up.</li>
+        <li>Sneak + right-click a quest NPC to trade with it as usual.</li>
+      </ul>
+    </section>
+
+    <section id="dungeon">
+      <h2>The dungeon</h2>
+      <p class="lede">Beyond the Doors of Durin, halls full of orcs, cave trolls, and Durin's Bane waiting at the end. The doors only open for those who know the word.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Enemy</th><th>Reward</th></tr></thead>
+        <tbody>
+          <tr><td>Orcs of the halls</td><td>5 LRX each; coins, gold and silver nuggets, rarely mithril or a scroll</td></tr>
+          <tr><td>Cave trolls</td><td>50 LRX to the killer, 25 to everyone who hit it; silver, 1,000 coins, scrolls, a chance of rings</td></tr>
+          <tr><td>Durin's Bane</td><td>Every player who dealt at least <b>10%</b> of its damage: <span class="coins">3,000 coins</span> in their vault and <b>1,000 LRX</b>. Precious scrolls and a chance of a Flame of Udûn go to the fighters, weighted by damage dealt.</td></tr>
+        </tbody>
+      </table></div>
+      <p>Once Durin's Bane falls, the way through the mountain opens. The halls seal again about an hour later, once nobody is left inside.</p>
+    </section>
+
+    <section id="pvp">
+      <h2>PvP arena</h2>
+      <p class="lede">Matches and duels in the arena, with kits handed out for the fight. Your own inventory is kept aside and given back afterwards.</p>
+      <h3>Duels</h3>
+      <p><code>/duel &lt;player&gt;</code> challenges someone; they answer with <code>/duel accept</code> or <code>/duel deny</code>.</p>
+      <h3>Matches</h3>
+      <p><code>/pvp</code> (or a <b>[PvP]</b> sign) opens a menu to start a match: pick the mode, the map and the goal. <code>/pvp status</code> shows the current match, <code>/pvp leave</code> leaves it.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Mode</th><th>How to win</th></tr></thead>
+        <tbody>
+          <tr><td><b>Team deathmatch</b></td><td>The first team to reach the kill goal.</td></tr>
+          <tr><td><b>Free-for-all</b></td><td>Every player for themselves.</td></tr>
+          <tr><td><b>King of the Hill</b></td><td>Hold the hill to score.</td></tr>
+          <tr><td><b>Domination</b></td><td>Two teams fight over one capture point at a time. Standing on it scores points; the point moves after a while, or once a team has taken enough points from it.</td></tr>
+          <tr><td><b>Assault</b></td><td>Attackers capture the points one after another; defenders hold until time runs out. Defenders respawn after a short delay, and an odd player joins the attackers.</td></tr>
+        </tbody>
+      </table></div>
+      <p>In Domination and Assault, a compass and the sidebar show the direction and distance to the active point. Kills and deaths in arena matches don't count in <code>/stats</code>.</p>
+      <p>Matches can pay rewards to the winning team and to every participant. Matches started by players only pay with enough players and a real fight.</p>
+    </section>
+
+    <section id="casino">
+      <h2>Casino</h2>
+      <p class="lede"><code>/casino</code> takes you there. Right-click a table to sit; you play with buttons in the chat.</p>
+      <ul>
+        <li>Bets from <span class="coins">10</span> to <span class="coins">100,000</span> coins, taken from your vault. Set your bet with <code>/bet &lt;amount&gt;</code>.</li>
+        <li><b>Blackjack</b>, up to 5 players against the bank: win pays 1:1, blackjack pays 3:2, a tie returns your bet. The bank draws to 17. Six-deck shoe, no insurance. A pair can be <b>split</b> into two hands with [Split] (same bet again, up to 4 hands), played one after the other.</li>
+        <li><b>Roulette</b>, European (single zero), up to 8 players: red/black, odd/even, 1–18/19–36 pay 1:1; dozens and columns pay 2:1; a single number pays 35:1.</li>
+        <li>Some tables can be watched without playing: <code>/casino watch</code>, sneak + right-click the table, or right-click a full table.</li>
+        <li><code>/casino leave</code> leaves your table (or stops watching), <code>/casino help</code> shows the rules, <code>/topcasinostats</code> shows the biggest win, biggest loss and top gambler.</li>
+        <li><code>/cstats [player]</code> shows a player's casino record; <code>/cstats top loss|win|gamble</code> the top 5.</li>
+      </ul>
+    </section>
+
+    <section id="community">
+      <h2>Events &amp; chat</h2>
+      <h3>Server events</h3>
+      <p>Events are announced in chat with a start time. To register, stand in the event area until it starts; leaving the area unregisters you, even for a moment. <code>/event</code> shows the current event. Winners (and sometimes every participant) receive rewards, delivered even if their inventory is full.</p>
+      <h3>Cosmetic armour</h3>
+      <p><code>/cosmetic</code> (<code>/cos</code>): hold an armour piece and type <code>/cosmetic equip</code> to store it as a cosmetic. Other players then see it instead of the real piece you wear in that slot (you must wear one). Your real armour still does all the work. <code>/cosmetic remove &lt;slot|all&gt;</code> gives it back, <code>/cosmetic hide</code> and <code>show</code> switch the look off and on. Mithril, galvorn and Morgul armour can't be cosmetics, and always show when worn.</p>
+      <h3>Alignment reset</h3>
+      <p><code>/alignmentreset</code> sets your LOTR alignment back to 0 with <b>every</b> faction. It can't be undone: type <code>/alignmentreset confirm</code> within 30 seconds to apply it. You may lose your pledge.</p>
+      <h3>Votes</h3>
+      <p><code>/timevote start</code> or <code>/weathervote start</code> opens a vote; everyone clicks [Yes] or [No] in chat. The vote ends early once a majority of the active players has answered.</p>
+      <h3>Team chats</h3>
+      <p>Private group chats: <code>/teamchat create &lt;name&gt;</code>, invite with <code>/teamchat invite &lt;player&gt;</code>, and <code>/teamchat</code> (or <code>/tc</code>) to switch between global chat and your team.</p>
+      <h3>AFK</h3>
+      <ul>
+        <li><code>/afk</code>: stand still for 5 seconds and you are marked AFK. After 10 minutes without moving you become AFK automatically.</li>
+        <li>AFK players are sent to the AFK area and shown as [AFK] in the Tab list. Moving, looking around or chatting brings you back where you were.</li>
+        <li>Time spent AFK doesn't count toward your play time in <code>/stats</code>.</li>
+      </ul>
+        <h3>Chat titles</h3>
+      <p>Some players show a title before their name in chat: <b>[Admin]</b> and <b>[Helper]</b> for the staff, and <a href="#subscription">subscriber titles</a>. Hover a title to read it. <code>/title</code> lists yours, <code>/title use &lt;title&gt;</code> picks one, <code>/title off</code> hides it.</p>
+      <h3>Stats</h3>
+      <p><code>/stats [player]</code> shows play time, kills, deaths and blocks; <code>/stats top &lt;stat&gt;</code> shows the leaders. Time spent AFK, PvP arena matches and staff in admin mode don't count.</p>
+</section>
+
+    <section id="subscription">
+      <h2>Subscription</h2>
+      <p class="lede">A monthly subscription supports the server and unlocks comfort and style features. Subscribe on the store with <code>/store</code>; <code>/subscription</code> (or <code>/sub</code>) shows your status and features.</p>
+      <ul>
+        <li>Features are active as soon as the payment goes through, and you're reminded in game when fewer than 3 days are left.</li>
+        <li>If the subscription ends, your settings (nickname, messages, extra homes, titles) are kept and come back when you subscribe again.</li>
+      </ul>
+      <h3>Homes and travel</h3>
+      <ul>
+        <li><code>/home2</code> and <code>/home3</code>: two extra homes (<code>/home2 set</code>, <code>/home3 set</code>), with the same wait and combat lock as <code>/home</code>.</li>
+        <li><code>/cooldown</code> (<code>/cd</code>): resets your LOTR fast-travel cooldown.</li>
+      </ul>
+      <h3>Chat and identity</h3>
+      <ul>
+        <li><code>/nick &lt;name&gt;</code>: a coloured nickname in chat (3–16 letters, digits or <code>_</code>; colours like <code>&amp;6</code>; <code>_</code> shows as a space). Hovering it shows your real name. <code>/nick off</code> removes it.</li>
+        <li><code>/joinmsg &lt;message&gt;</code> and <code>/leavemsg &lt;message&gt;</code>: your own message when you join or leave (60 characters, <code>{name}</code> = your name, colours allowed, <code>off</code> to remove).</li>
+        <li><b>Subscriber titles</b> before your name in chat, unlocked by your total time subscribed (all subscriptions added up). Each rank has a good and an evil version; you choose which one to show:</li>
+      </ul>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Total time subscribed</th><th>Good</th><th>Evil</th></tr></thead>
+        <tbody>
+          <tr><td>On subscribing</td><td>Maia</td><td>Umaia</td></tr>
+          <tr><td>1 month</td><td>Istari</td><td>Nazgul</td></tr>
+          <tr><td>3 months</td><td>Ainu</td><td>Balrog</td></tr>
+          <tr><td>6 months</td><td>Olórin</td><td>Annatar</td></tr>
+          <tr><td>12 months</td><td>Vala</td><td>Melkor</td></tr>
+          <tr><td>18 months</td><td>Manwë</td><td>Morgoth</td></tr>
+          <tr><td>24 months</td><td colspan="2">Ilúvatar (coming soon)</td></tr>
+        </tbody>
+      </table></div>
+      <p>Titles show only while you are subscribed; unlocked ones are kept and come back when you resubscribe.</p>
+      <h3>Convenience</h3>
+      <ul>
+        <li><code>/hat</code>: wear the item in your hand as a hat.</li>
+        <li><code>/crafting</code> (<code>/ct</code>): a crafting table anywhere.</li>
+        <li><code>/rename &lt;name&gt;</code>: rename the item in your hand with colours and styles (40 characters). <code>/rename off</code> restores the name. Quest, lore and event items can't be renamed.</li>
+        <li>These three don't work during arena matches.</li>
+      </ul>
+      <h3>Contributor's Almanac</h3>
+      <ul>
+        <li>A daily task, new every day at midnight (Paris time): bring the requested items to the Almanac in the lobby and right-click it. Partial deliveries count.</li>
+        <li>Each task has a rarity (Common, Uncommon, Rare, Legendary) with matching LRX and coin rewards; coins go to your vault, LRX goes through your faction's levy.</li>
+        <li><b>Streak bonus:</b> each day completed in a row adds ×0.05 to your rewards, up to ×2 on day 21. Missing a day resets it.</li>
+        <li><code>/almanac</code> shows today's task, your progress and your streak.</li>
+      </ul>
+      <div class="note gold">Subscriptions give comfort, style and recognition: no gear and no combat stats.</div>
+    </section>
+
+    <section id="rules">
+      <h2>Rules &amp; fair play</h2>
+      <p class="lede">The full rules are in game with <code>/rules</code>. These are the ones that come up most.</p>
+      <h3>Not allowed</h3>
+      <ul>
+        <li>X-ray, ore or cave locators, and minimaps that show players.</li>
+        <li>Autoclickers, macros and AFK farms.</li>
+        <li>World downloaders; Schematica printing while AFK, or copying someone's build without permission.</li>
+        <li>Block glitching, escaping the lobby, glitching through walls by dismounting, and anything that equips armour instantly.</li>
+        <li>Breaking a protected block to see behind it, shooting protected items with ranged weapons, or trampling banner-protected crops on purpose.</li>
+      </ul>
+      <h3>What the server checks automatically</h3>
+      <ul>
+        <li><b>Autoclicking:</b> clicking too fast or with machine-like regularity is reported to the staff.</li>
+        <li><b>AFK farming:</b> clicking for several minutes without moving or looking around sends you to the AFK area and alerts the staff.</li>
+        <li><b>X-ray:</b> finding hidden ores far more often than normal mining allows is reported. Ores you find in caves don't count against you.</li>
+        <li><b>Barrow-wight farms:</b> farms are allowed, but the server detects them. Each farm kill earns a warning; after 5, Barrow-wights killed in that farm no longer drop items.</li>
+      </ul>
+      <div class="note">Protect your land with a LOTR banner: place one and set up its protection so other players can't build, break or loot there.</div>
+    </section>
+
+    <section id="commands">
+      <h2>All commands</h2>
+      <p class="lede">Every command available to players. Type to filter.</p>
+      <div class="search">
+        <input id="q" type="search" placeholder="Search: vault, home, faction…" aria-label="Filter commands">
+        <span id="count"></span>
+      </div>
+      <div class="tablewrap"><table id="cmds">
+        <thead><tr><th>Command</th><th>What it does</th><th>Topic</th></tr></thead>
+        <tbody>
+          <tr><td><code>/lobby</code></td><td>Go back to the lobby</td><td class="cat">Getting around</td></tr>
+          <tr><td><code>/home set</code> · <code>/home</code></td><td>Save your home / go back to it</td><td class="cat">Getting around</td></tr>
+          <tr><td><code>/tpa &lt;player&gt;</code></td><td>Ask to teleport to a player (alone: accept a request)</td><td class="cat">Getting around</td></tr>
+          <tr><td><code>/tpahere &lt;player&gt;</code></td><td>Ask a player to teleport to you</td><td class="cat">Getting around</td></tr>
+          <tr><td><code>/tpaccept</code> · <code>/tpdeny</code> · <code>/tpacancel</code></td><td>Accept / refuse a request, cancel yours</td><td class="cat">Getting around</td></tr>
+          <tr><td><code>/home2</code> · <code>/home3</code> [set]</td><td>Subscribers: two extra homes</td><td class="cat">Getting around</td></tr>
+          <tr><td><code>/cooldown</code> (<code>/cd</code>)</td><td>Subscribers: reset your fast-travel cooldown</td><td class="cat">Getting around</td></tr>
+          <tr><td><code>/build</code></td><td>Go to or leave the creative build world</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/plot find &lt;1|2|3&gt;</code></td><td>Find a free plot (32, 64 or 128 blocks wide)</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/plot create &lt;name&gt; &lt;size&gt;</code></td><td>Claim the free plot you stand on</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/plot list</code> · <code>/plot visit &lt;name&gt;</code></td><td>Your plots / visit a plot</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/plot invite|uninvite &lt;plot&gt; &lt;player&gt;</code></td><td>Who can build in your plot</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/plot ban|unban &lt;plot&gt; &lt;player&gt;</code></td><td>Who can't enter your plot</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/plot setground &lt;plot&gt; &lt;block&gt;</code></td><td>Change your plot's floor</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/plot delete &lt;plot&gt; confirm</code></td><td>Delete your plot</td><td class="cat">Build world</td></tr>
+          <tr><td><code>/lrx [player]</code></td><td>LRX total, level and progress</td><td class="cat">LRX</td></tr>
+          <tr><td><code>/lrx claim</code></td><td>Collect your level rewards (coins and abilities)</td><td class="cat">LRX</td></tr>
+          <tr><td><code>/lrx bar on|always|off</code></td><td>LRX bar at the top of the screen: after each gain / always / never</td><td class="cat">LRX</td></tr>
+          <tr><td><code>/quest</code> · <code>/quest done</code> · <code>/quest abandon &lt;quest&gt;</code></td><td>Your quests and objectives / finished quests / give one up</td><td class="cat">Quests</td></tr>
+          <tr><td><code>/abilities</code></td><td>Your ability uses</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/handofyavanna</code></td><td>Put Hand of Yavanna on the hoe in your hand</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/featherweight</code></td><td>Put Featherweight on the boots in your hand</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/veinminer</code></td><td>Put Vein Miner on the pickaxe in your hand</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/adrenaline</code></td><td>Put Adrenaline on the chestplate in your hand</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/unbreakable</code></td><td>Make the item in your hand unbreakable</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/bountiful</code></td><td>Put Bountiful on the tool or weapon in your hand</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/treechopper [on|off]</code></td><td>Fell whole trees by breaking a log with an axe while sneaking</td><td class="cat">Abilities</td></tr>
+          <tr><td><code>/vault</code></td><td>Your coin balance</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/vault deposit</code></td><td>Put the coins from your inventory in your vault</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/vault withdraw &lt;amount&gt;</code></td><td>Take coins out as items</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/vault top</code></td><td>Richest players</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/vault auto on|off</code></td><td>Deposit incoming coins automatically</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/market</code> (<code>/ah</code>)</td><td>Open the market</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/market sell &lt;price&gt;</code> · <code>/market auction &lt;price&gt; &lt;duration&gt;</code></td><td>Sell or auction the stack in your hand</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/market buy|cancel &lt;id&gt;</code> · <code>/market bid &lt;id&gt; &lt;amount&gt;</code></td><td>Buy, withdraw your offer, bid</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/market mine</code> · <code>/market search &lt;words&gt;</code></td><td>Your offers / search the market</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/market shop</code></td><td>Server shop: items with unlimited stock</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/trade &lt;player&gt;</code> · <code>/trade accept|deny</code></td><td>Trade items and coins safely with a player</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/eggreturn</code></td><td>Refund a commander or smith egg you bought (hold it, within 48 h)</td><td class="cat">Coins</td></tr>
+          <tr><td><code>/faction list</code> · <code>/faction info [faction]</code></td><td>All factions / one faction's details</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction join &lt;faction&gt;</code> · <code>/faction leave</code></td><td>Join / leave a faction</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction invite &lt;player&gt;</code></td><td>Invite a player without a faction</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction banlist [faction]</code></td><td>Who is banned from a faction</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction home</code></td><td>Teleport to your faction's home (5 s, don't move)</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction member &lt;player&gt;</code></td><td>Which faction a player belongs to</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction top week|month|lrx|members</code></td><td>Contest standings and rankings</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction contrib [week|lastweek|month|lastmonth]</code></td><td>Your members ranked by the LRX they gave the faction</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction levy [value]</code></td><td>See (or, leader, set) the faction's LRX share</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction overtake</code></td><td>Become leader of a faction without one</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction claim</code> (<code>/faction reward</code>)</td><td>Collect contest prizes and territory resources (leader or <i>claim</i> permission)</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/conquestmap</code> (<code>/cmap</code>)</td><td>Link to the live conquest map</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/territory list</code> (<code>/t list</code>)</td><td>All territories, owners and fees; your faction's total due</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/t info &lt;territory&gt;</code> · <code>/t faction [faction]</code></td><td>A territory's details / what a faction rules</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/t overtake &lt;territory&gt; &lt;LRX&gt;</code> (<code>/t bid</code>)</td><td>Bid for a territory (the bid becomes its weekly fee)</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/t match &lt;territory&gt;</code> · <code>/t cancel &lt;territory&gt;</code></td><td>Keep your territory against a bid / withdraw your bid</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/t keep &lt;territory&gt;</code> · <code>/t abandon &lt;territory&gt;</code></td><td>Leader: pay this one first when short / give it up</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/faction siegebase &lt;territory&gt; submit|reopen</code></td><td>Leader: send your siege base for checking / unlock it for changes</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/siegegate [hp &lt;1-200&gt; | reset | list]</code></td><td>Builders: health of the gate you look at in your siege base</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/faction war declare &lt;faction&gt;</code></td><td>Leader: declare war (starts 24 h later)</td><td class="cat">War</td></tr>
+          <tr><td><code>/faction war info &lt;faction&gt;</code></td><td>A faction's wars and pending armistice</td><td class="cat">War</td></tr>
+          <tr><td><code>/faction war armistice [faction]</code></td><td>Leader: negotiate the end of a war</td><td class="cat">War</td></tr>
+          <tr><td><code>/faction war siege &lt;faction&gt; &lt;territory&gt;</code> · <code>/siege</code></td><td>Besiege an enemy territory / planned sieges</td><td class="cat">War</td></tr>
+          <tr><td><code>/faction home set</code></td><td>Leader: set the faction home</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction rank …</code></td><td>Leader: create, assign, reorder and rename ranks</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction kick|ban|unban &lt;player&gt;</code></td><td>Remove, ban or unban a lower-ranked member (permission needed)</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction rank perm &lt;rank&gt; &lt;permission&gt; on|off</code></td><td>Leader: give or remove a rank's permissions</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction resign</code></td><td>Leader: step down</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction secession</code></td><td>Start or join a secession against your leader</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction join &lt;faction&gt; separatists</code></td><td>Join a faction's separatists (without a faction)</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/faction putsch</code></td><td>Declare the putsch, or as leader pick its date</td><td class="cat">Factions</td></tr>
+          <tr><td><code>/duel &lt;player&gt;</code> · <code>/duel accept|deny</code></td><td>Challenge a player / answer a challenge</td><td class="cat">PvP</td></tr>
+          <tr><td><code>/pvp</code> · <code>/pvp status</code> · <code>/pvp leave</code></td><td>Start an arena match / current match / leave it</td><td class="cat">PvP</td></tr>
+          <tr><td><code>/casino</code></td><td>Go to the casino</td><td class="cat">Casino</td></tr>
+          <tr><td><code>/casino help</code> · <code>/casino leave</code></td><td>Casino rules / leave your table</td><td class="cat">Casino</td></tr>
+          <tr><td><code>/casino watch [table]</code></td><td>Watch a table without playing (where allowed)</td><td class="cat">Casino</td></tr>
+          <tr><td><code>/bet &lt;amount&gt;</code></td><td>Your bet (blackjack) or chip value (roulette)</td><td class="cat">Casino</td></tr>
+          <tr><td><code>/topcasinostats</code></td><td>Biggest win, biggest loss, top gambler</td><td class="cat">Casino</td></tr>
+          <tr><td><code>/cstats [player]</code> · <code>/cstats top loss|win|gamble</code></td><td>A player's casino record / top 5</td><td class="cat">Casino</td></tr>
+          <tr><td><code>/event</code></td><td>The current server event</td><td class="cat">Community</td></tr>
+          <tr><td><code>/timevote start</code> · <code>/weathervote start</code></td><td>Start a vote to change the time or the weather</td><td class="cat">Community</td></tr>
+          <tr><td><code>/teamchat</code> (<code>/tc</code>)</td><td>Private group chats: create, invite, join, switch</td><td class="cat">Community</td></tr>
+          <tr><td><code>/afk</code></td><td>Mark yourself as AFK</td><td class="cat">Community</td></tr>
+          <tr><td><code>/stats [player]</code> · <code>/stats top &lt;stat&gt;</code></td><td>Player stats / leaderboards</td><td class="cat">Community</td></tr>
+          <tr><td><code>/seen &lt;player&gt;</code></td><td>When a player was last online</td><td class="cat">Community</td></tr>
+          <tr><td><code>/vchest</code></td><td>Your virtual chest (not in Utumno)</td><td class="cat">Community</td></tr>
+          <tr><td><code>/title</code> · <code>/title use &lt;title&gt;</code> · <code>/title off</code></td><td>Your chat titles / show one / hide it</td><td class="cat">Community</td></tr>
+          <tr><td><code>/rules</code></td><td>Server rules</td><td class="cat">Community</td></tr>
+          <tr><td><code>/infocenter</code> (<code>/info</code>) · <code>/wiki</code></td><td>Links to this page / to the LOTR Mod wiki</td><td class="cat">Community</td></tr>
+          <tr><td><code>/cosmetic</code> (<code>/cos</code>)</td><td>Cosmetic armour: equip, remove, hide, show</td><td class="cat">Community</td></tr>
+          <tr><td><code>/alignmentreset [confirm]</code></td><td>Reset your LOTR alignment to 0 with every faction (can't be undone)</td><td class="cat">Community</td></tr>
+          <tr><td><code>/store</code></td><td>Link to the store</td><td class="cat">Subscription</td></tr>
+          <tr><td><code>/subscription</code> (<code>/sub</code>)</td><td>Your subscription status and features</td><td class="cat">Subscription</td></tr>
+          <tr><td><code>/nick &lt;name|off&gt;</code></td><td>Subscribers: coloured nickname in chat</td><td class="cat">Subscription</td></tr>
+          <tr><td><code>/joinmsg</code> · <code>/leavemsg</code></td><td>Subscribers: your join and leave messages</td><td class="cat">Subscription</td></tr>
+          <tr><td><code>/hat</code></td><td>Subscribers: wear the item in your hand</td><td class="cat">Subscription</td></tr>
+          <tr><td><code>/crafting</code> (<code>/ct</code>)</td><td>Subscribers: crafting table anywhere</td><td class="cat">Subscription</td></tr>
+          <tr><td><code>/rename &lt;name|off&gt;</code></td><td>Subscribers: rename the item in your hand</td><td class="cat">Subscription</td></tr>
+          <tr><td><code>/almanac</code></td><td>Subscribers: today's Almanac task, progress and streak</td><td class="cat">Subscription</td></tr>
+        </tbody>
+      </table></div>
+      <p id="none" hidden>No command matches that search.</p>
+    </section>
+
+    <footer>LOTR Reborn · Values reflect the server's settings in early November 2026. Questions? Ask a staff member in game.</footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  // Calculateur de niveau : total(n) = 500 + 250·n·(n−1), récompense = 1000·n
+  function totalFor(n) { return n <= 0 ? 0 : 500 + 250 * n * (n - 1); }
+  var input = document.getElementById('lrxIn'), out = document.getElementById('lrxOut');
+  function fmt(v) { return Math.round(v).toLocaleString('en-US'); }
+  function calc() {
+    var lrx = Math.max(0, Math.floor(Number(input.value) || 0));
+    var lvl = 0;
+    while (totalFor(lvl + 1) <= lrx && lvl < 10000) lvl++;
+    var next = totalFor(lvl + 1);
+    var coins = 1000 * lvl * (lvl + 1) / 2;
+    out.innerHTML = 'Level <b>' + lvl + '</b> · ' + fmt(next - lrx) + ' LRX to level ' + (lvl + 1) +
+      ' · <b>' + fmt(coins) + '</b> coins earned from levels so far';
+  }
+  input.addEventListener('input', calc);
+  calc();
+
+  // Filtre des commandes
+  var q = document.getElementById('q'), rows = document.querySelectorAll('#cmds tbody tr');
+  var count = document.getElementById('count'), none = document.getElementById('none');
+  function filter() {
+    var t = q.value.trim().toLowerCase(), n = 0;
+    for (var i = 0; i < rows.length; i++) {
+      var show = !t || rows[i].textContent.toLowerCase().indexOf(t) !== -1;
+      rows[i].hidden = !show;
+      if (show) n++;
+    }
+    count.textContent = n + ' of ' + rows.length;
+    none.hidden = n !== 0;
+  }
+  q.addEventListener('input', filter);
+  filter();
+
+  // Chapitre courant dans l'index
+  var links = document.querySelectorAll('nav.index li a');
+  var map = {};
+  for (var j = 0; j < links.length; j++) map[links[j].getAttribute('href').slice(1)] = links[j];
+  if ('IntersectionObserver' in window) {
+    var obs = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting && map[e.target.id]) {
+          for (var k = 0; k < links.length; k++) links[k].classList.remove('on');
+          map[e.target.id].classList.add('on');
+        }
+      });
+    }, { rootMargin: '-20% 0px -70% 0px' });
+    document.querySelectorAll('main section').forEach(function (s) { obs.observe(s); });
+  }
+})();
+</script>
+</body>
+</html>
