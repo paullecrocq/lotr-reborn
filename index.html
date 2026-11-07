@@ -512,8 +512,11 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       <h3>Votes</h3>
       <p><code>/timevote start</code> or <code>/weathervote start</code> opens a vote; everyone clicks [Yes] or [No] in chat. The vote ends early once a majority of the active players has answered.</p>
       <h3>Team chats</h3>
-      <p>Private group chats: <code>/teamchat create &lt;name&gt;</code>, invite with <code>/teamchat invite &lt;player&gt;</code>, and <code>/teamchat</code> (or <code>/tc</code>) to switch between global chat and your team.</p>
-      <p>Faction chat: every faction has its own chat with all its members, nobody else. Open yours with <code>/teamchat select &lt;faction id&gt;</code> (for example <code>/teamchat select gondor</code>); <code>/teamchat</code> switches back to the global chat. You join it with your faction and leave it with your faction.</p>
+      <p>There are two kinds of private chats. You can be in several of them at once and you read the messages of all of them; <code>/teamchat select &lt;name&gt;</code> picks the one you write in, and <code>/teamchat</code> (or <code>/tc</code>) switches between it and the global chat. <code>/teamchat list</code> shows all of yours.</p>
+      <ul>
+        <li><b>Your faction chat</b>: every faction has one, named after the faction's id (for example <code>/teamchat select gondor</code>). All the faction's members are in it automatically and nobody else: you join it when you join the faction and leave it when you leave the faction. Nobody owns it, so nobody can invite, kick or leave.</li>
+        <li><b>Your own team chats</b>: groups you create with <code>/teamchat create &lt;name&gt;</code>, open to anyone, whatever their faction. The creator invites players (<code>/teamchat invite &lt;player&gt;</code>, accepted with <code>/teamchat join &lt;name&gt;</code>), can name admins (<code>/teamchat promote &lt;player&gt;</code>) and remove members (<code>/teamchat kick &lt;player&gt;</code>); anyone can <code>/teamchat leave</code>. A team chat cannot take a faction's name.</li>
+      </ul>
       <h3>AFK</h3>
       <ul>
         <li><code>/afk</code>: stand still for 5 seconds and you are marked AFK. After 10 minutes without moving you become AFK automatically.</li>
@@ -685,7 +688,15 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
           <tr><td><code>/cstats [player]</code> · <code>/cstats top loss|win|gamble</code></td><td>A player's casino record / top 5</td><td class="cat">Casino</td></tr>
           <tr><td><code>/event</code></td><td>The current server event</td><td class="cat">Community</td></tr>
           <tr><td><code>/timevote start</code> · <code>/weathervote start</code></td><td>Start a vote to change the time or the weather</td><td class="cat">Community</td></tr>
-          <tr><td><code>/teamchat</code> (<code>/tc</code>)</td><td>Private group chats: create, invite, join, switch. <code>/teamchat select &lt;faction id&gt;</code>: your faction chat</td><td class="cat">Community</td></tr>
+          <tr><td><code>/teamchat</code> (<code>/tc</code>)</code></td><td>Switch between the global chat and your selected private chat (faction chat or team chat)</td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat select &lt;faction id&gt;</code></td><td>Faction chat: write in your faction's chat (e.g. <code>/teamchat select gondor</code>). Every member of your faction is in it automatically, nobody else; nobody can invite, kick or leave</td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat select &lt;name&gt;</code></td><td>Team chat: write in one of your own team chats</td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat create &lt;name&gt;</code></td><td>Team chat: create a private group, open to players of any faction (cannot use a faction's name)</td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat invite &lt;player&gt;</code></td><td>Team chat: invite a player (owner and admins); they accept with <code>/teamchat join &lt;name&gt;</code></td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat promote|demote|kick &lt;player&gt;</code></td><td>Team chat: name or remove an admin (owner), remove a member (owner and admins)</td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat leave</code></td><td>Team chat: leave the selected team chat (not possible for the faction chat)</td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat list</code></td><td>All your private chats: your faction chat and your team chats</td><td class="cat">Community</td></tr>
+<tr><td><code>/teamchat info</code></td><td>Members of the selected chat, online in green</td><td class="cat">Community</td></tr>
           <tr><td><code>/afk</code></td><td>Mark yourself as AFK</td><td class="cat">Community</td></tr>
           <tr><td><code>/stats [player]</code> · <code>/stats top &lt;stat&gt;</code></td><td>Player stats / leaderboards</td><td class="cat">Community</td></tr>
           <tr><td><code>/seen &lt;player&gt;</code></td><td>When a player was last online</td><td class="cat">Community</td></tr>
