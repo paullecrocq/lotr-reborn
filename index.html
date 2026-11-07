@@ -513,6 +513,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
       <p><code>/timevote start</code> or <code>/weathervote start</code> opens a vote; everyone clicks [Yes] or [No] in chat. The vote ends early once a majority of the active players has answered.</p>
       <h3>Team chats</h3>
       <p>Private group chats: <code>/teamchat create &lt;name&gt;</code>, invite with <code>/teamchat invite &lt;player&gt;</code>, and <code>/teamchat</code> (or <code>/tc</code>) to switch between global chat and your team.</p>
+      <p>Faction chat: every faction has its own chat with all its members, nobody else. Open yours with <code>/teamchat select &lt;faction id&gt;</code> (for example <code>/teamchat select gondor</code>); <code>/teamchat</code> switches back to the global chat. You join it with your faction and leave it with your faction.</p>
       <h3>AFK</h3>
       <ul>
         <li><code>/afk</code>: stand still for 5 seconds and you are marked AFK. After 10 minutes without moving you become AFK automatically.</li>
@@ -684,7 +685,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
           <tr><td><code>/cstats [player]</code> · <code>/cstats top loss|win|gamble</code></td><td>A player's casino record / top 5</td><td class="cat">Casino</td></tr>
           <tr><td><code>/event</code></td><td>The current server event</td><td class="cat">Community</td></tr>
           <tr><td><code>/timevote start</code> · <code>/weathervote start</code></td><td>Start a vote to change the time or the weather</td><td class="cat">Community</td></tr>
-          <tr><td><code>/teamchat</code> (<code>/tc</code>)</td><td>Private group chats: create, invite, join, switch</td><td class="cat">Community</td></tr>
+          <tr><td><code>/teamchat</code> (<code>/tc</code>)</td><td>Private group chats: create, invite, join, switch. <code>/teamchat select &lt;faction id&gt;</code>: your faction chat</td><td class="cat">Community</td></tr>
           <tr><td><code>/afk</code></td><td>Mark yourself as AFK</td><td class="cat">Community</td></tr>
           <tr><td><code>/stats [player]</code> · <code>/stats top &lt;stat&gt;</code></td><td>Player stats / leaderboards</td><td class="cat">Community</td></tr>
           <tr><td><code>/seen &lt;player&gt;</code></td><td>When a player was last online</td><td class="cat">Community</td></tr>
