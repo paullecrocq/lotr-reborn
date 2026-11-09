@@ -107,7 +107,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <li><span class="n">P4</span><div><p>The path must be free of any obstruction, including anything that slows players down or hurts them.</p><p class="why">Dart traps hurt players: they count as obstructions and can't be used on the path.</p></div></li>
       <li><span class="n">P5</span><div><p>The path must be continuous: players must be able to walk it back and forth without any obstruction. No parkour, no climbing, no drops.</p><p class="why">Staircases are allowed if each step is at most 1 block high for 1 block forward.</p></div></li>
       <li><span class="n">P6</span><div><p>The path must not be next to any source of damage, for example lava or Morgul flowers.</p></div></li>
-      <li><span class="n">P7</span><div><p>There must be no pit that prevents players from getting back to the path: every pit must have an exit.</p></div></li>
+      <li><span class="n">P7</span><div><p>A pit next to the path is allowed only if it has an exit back to the path <b>and</b> the path is at least <b>5 blocks wide</b> there.</p><p class="why">A pit separated from the path by a railing at least 1 block high doesn't count as next to the path. Stairs and slabs are not railings.</p></div></li>
       <li><span class="n">P8</span><div><p>The attackers' spawn point must lead to the path. It can't be directly exposed to the defenders' area.</p></div></li>
       <li><span class="n">P9</span><div><p>Labyrinths are not allowed: the path must be clear and easy to follow.</p></div></li>
     </ol>
@@ -187,6 +187,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <div><dt>Parkour</dt><dd>Any move that needs a jump across a gap, or onto a block more than 1 block higher.</dd></div>
       <div><dt>Climbing</dt><dd>Any vertical move that isn't a staircase: ladders, vines, pillars of blocks, water columns.</dd></div>
       <div><dt>Pit</dt><dd>A hole in the floor a player can fall into.</dd></div>
+      <div><dt>Railing</dt><dd>A barrier between the path and a pit whose top edge is at least 1 block above the path floor, such as a row of full blocks, fences or walls. Stairs and slabs don't count.</dd></div>
       <div><dt>Exit (of a pit)</dt><dd>A walkable way out of the pit that leads back to the path, following the same rules as the path itself.</dd></div>
       <div><dt>Labyrinth</dt><dd>A path with dead ends, forks or loops that hide the way to the capture area. The path must be one obvious route.</dd></div>
       <div><dt>Gate</dt><dd>A group of LOTR gate blocks that touch each other.</dd></div>
