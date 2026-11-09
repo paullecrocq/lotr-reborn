@@ -99,11 +99,12 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <li><span class="n">P2</span><div><p>Only gates can block the path.</p></div></li>
       <li><span class="n">P3</span><div><p>At every location, the path must be at least <b>3 blocks wide</b> and <b>2 blocks high</b>.</p></div></li>
       <li><span class="n">P4</span><div><p>The path must be free of any obstruction, including anything that slows players down or hurts them.</p><p class="why">Dart traps hurt players: they count as obstructions and can't be used on the path.</p></div></li>
-      <li><span class="n">P5</span><div><p>The path must be walkable all the way: no parkour, no climbing.</p></div></li>
+      <li><span class="n">P5</span><div><p>The path must be continuous: players must be able to walk it back and forth without any obstruction. No parkour, no climbing, no drops.</p><p class="why">Staircases are allowed if each step is at most 1 block high for 1 block forward.</p></div></li>
       <li><span class="n">P6</span><div><p>Lesser obstructions are tolerated next to the path, never on it, and only where the path is at least <b>5 blocks wide</b>.</p></div></li>
       <li><span class="n">P7</span><div><p>The path must not be next to any source of damage, for example lava or Morgul flowers.</p></div></li>
       <li><span class="n">P8</span><div><p>There must be no pit that prevents players from getting back to the path: every pit must have an exit.</p></div></li>
       <li><span class="n">P9</span><div><p>The attackers' spawn point must lead to the path. It can't be directly exposed to the defenders' area.</p></div></li>
+      <li><span class="n">P10</span><div><p>Labyrinths are not allowed: the path must be clear and easy to follow.</p></div></li>
     </ol>
   </section>
 
@@ -123,7 +124,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     <ol class="rules">
       <li><span class="n">C1</span><div><p>The capture area is a <b>9&times;9</b> square centered on the emerald block (only one emerald block per base). From the emerald up, it must be free of any obstruction for at least <b>3 blocks</b> of height.</p></div></li>
       <li><span class="n">C2</span><div><p>The capture area must be in a <b>separate room</b> from the defenders' spawn point, with no direct opening between the two rooms. Height counts: a spawn above or below the capture room follows the same rule.</p></div></li>
-      <li><span class="n">C3</span><div><p>The capture area must be lit.</p></div></li>
+      <li><span class="n">C3</span><div><p>The capture area must be lit.</p><p class="why">The path doesn't have to be lit.</p></div></li>
     </ol>
   </section>
 
