@@ -86,6 +86,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <a href="#gates">Gates</a>
       <a href="#capture">Capture area</a>
       <a href="#holes">Openings</a>
+      <a href="#siege">During a siege</a>
       <a href="#auto">Checked automatically</a>
     </div>
   </header>
@@ -96,26 +97,33 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     <ol class="rules">
       <li><span class="n">P1</span><div><p>A path must exist that connects the attackers' spawn point and the capture area.</p></div></li>
       <li><span class="n">P2</span><div><p>Only gates can block the path.</p></div></li>
-      <li><span class="n">P3</span><div><p>At every location, the path must be at least <b>3 blocks wide</b>.</p></div></li>
-      <li><span class="n">P4</span><div><p>Lesser obstructions are tolerated next to the path, on the condition that the path is at least <b>5 blocks wide</b> there. Lesser obstructions can slow players down.</p></div></li>
-      <li><span class="n">P5</span><div><p>The path must not be next to any source of damage, for example lava or Morgul flowers.</p></div></li>
-      <li><span class="n">P6</span><div><p>There must be no pit that prevents players from getting back to the path: every pit must have an exit.</p></div></li>
+      <li><span class="n">P3</span><div><p>At every location, the path must be at least <b>3 blocks wide</b> and <b>2 blocks high</b>.</p></div></li>
+      <li><span class="n">P4</span><div><p>The path must be free of any obstruction, including anything that slows players down or hurts them.</p><p class="why">Dart traps hurt players: they count as obstructions and can't be used on the path.</p></div></li>
+      <li><span class="n">P5</span><div><p>The path must be walkable all the way: no parkour, no climbing.</p></div></li>
+      <li><span class="n">P6</span><div><p>Lesser obstructions are tolerated next to the path, never on it, and only where the path is at least <b>5 blocks wide</b>.</p></div></li>
+      <li><span class="n">P7</span><div><p>The path must not be next to any source of damage, for example lava or Morgul flowers.</p></div></li>
+      <li><span class="n">P8</span><div><p>There must be no pit that prevents players from getting back to the path: every pit must have an exit.</p></div></li>
+      <li><span class="n">P9</span><div><p>The attackers' spawn point must lead to the path. It can't be directly exposed to the defenders' area.</p></div></li>
     </ol>
   </section>
 
   <section id="gates">
     <h2>Gates</h2>
-    <p class="lede">Gates are LOTR gate blocks. Attackers break them with the siege ram.</p>
+    <p class="lede">Gates are LOTR gate blocks. Attackers break the gates on the path with the siege ram or with bombs.</p>
     <ol class="rules">
-      <li><span class="n">G1</span><div><p>Every gate on the path must be at least <b>3&times;3</b>.</p></div></li>
-      <li><span class="n">G2</span><div><p>In front of each gate, there must be enough space to place a ram.</p><p class="why">The ram is set up on the attackers' side: it needs 6 free blocks in front of the gate, 2 blocks high, with 1 free block on each side (3 wide).</p></div></li>
+      <li><span class="n">G1</span><div><p>Every gate on the path must stand upright and be at least <b>3&times;3</b>.</p></div></li>
+      <li><span class="n">G2</span><div><p>In front of each gate on the path, there must be enough space to place a ram. Build the corridor so the ram fits.</p><p class="why">The ram is set up on the attackers' side: it needs 6 free blocks in front of the gate, 2 blocks high, with 1 free block on each side (3 wide).</p></div></li>
+      <li><span class="n">G3</span><div><p>The HP of every gate on the path must be set with <code>/siegegate</code>: at most <b>200 HP</b> per gate, and at most <b>1000 HP</b> for all the gates on the path together.</p></div></li>
+      <li><span class="n">G4</span><div><p>Only gates on the path may be set with <code>/siegegate</code>. You can use as many gates as you like elsewhere in your base; they aren't limited.</p><p class="why">The staff checks that no unset gate stands on the path.</p></div></li>
     </ol>
   </section>
 
   <section id="capture">
     <h2>Capture area and spawns</h2>
     <ol class="rules">
-      <li><span class="n">C1</span><div><p>The capture area must be in a <b>separate room</b> from the defenders' spawn point.</p></div></li>
+      <li><span class="n">C1</span><div><p>The capture area is a <b>9&times;9</b> square centered on the emerald block (only one emerald block per base). From the emerald up, it must be free of any obstruction for at least <b>3 blocks</b> of height.</p></div></li>
+      <li><span class="n">C2</span><div><p>The capture area must be in a <b>separate room</b> from the defenders' spawn point, with no direct opening between the two rooms. Height counts: a spawn above or below the capture room follows the same rule.</p></div></li>
+      <li><span class="n">C3</span><div><p>The capture area must be lit.</p></div></li>
     </ol>
   </section>
 
@@ -123,8 +131,19 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
     <h2>Openings in walls and roofs</h2>
     <ol class="rules">
       <li><span class="n">H1</span><div><p>Holes in walls aimed at the lower part of the attackers' bodies are not allowed.</p></div></li>
-      <li><span class="n">H2</span><div><p>No hole in a wall or roof may be aimed directly at the capture area.</p></div></li>
+      <li><span class="n">H2</span><div><p>With every gate in place and closed, no hole in a wall or roof may have a line of sight on the capture area.</p><p class="why">A line of sight that only opens once attackers have broken gates on the path is allowed.</p></div></li>
     </ol>
+  </section>
+
+  <section id="siege">
+    <div class="note">
+      <h3>During a siege</h3>
+      <ul>
+        <li>Defenders can open every gate, door and trapdoor of their base.</li>
+        <li>Attackers can't use anything in the base (gates, doors, chests, levers…). They break the gates on the path with the ram or with bombs.</li>
+        <li>The attackers capture by outnumbering the defenders inside the 9&times;9 capture area.</li>
+      </ul>
+    </div>
   </section>
 
   <section id="auto">
@@ -132,10 +151,11 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <h3>Checked automatically</h3>
       <p>The server refuses to submit or validate a base that doesn't meet these:</p>
       <ul>
-        <li>A diamond block (defenders' spawn), a redstone block (attackers' spawn) and emerald (capture area).</li>
+        <li>A diamond block (defenders' spawn), a redstone block (attackers' spawn) and exactly <b>one</b> emerald block (capture area).</li>
+        <li>The 9&times;9 capture area is free of blocks for 3 blocks above the emerald.</li>
         <li>The defenders' spawn is at least <b>30 blocks</b> from the capture area.</li>
-        <li>Every gate in the base stands upright and is at least 3&times;3.</li>
-        <li>Each gate has at most <b>200 HP</b>, and all the gates together at most <b>1000 HP</b> (<code>/siegegate</code>).</li>
+        <li>Every gate set with <code>/siegegate</code> stands upright and is at least 3&times;3.</li>
+        <li>The gates set with <code>/siegegate</code> have at most <b>200 HP</b> each and <b>1000 HP</b> together.</li>
       </ul>
     </div>
     <div class="note">
