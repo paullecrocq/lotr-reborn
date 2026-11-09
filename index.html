@@ -666,6 +666,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
           <tr><td><code>/t keep &lt;territory&gt;</code> · <code>/t abandon &lt;territory&gt;</code></td><td>Leader: pay this one first when short / give it up</td><td class="cat">Territories</td></tr>
           <tr><td><code>/faction siegebase &lt;territory&gt; submit|reopen</code></td><td>Leader: send your siege base for checking / unlock it for changes</td><td class="cat">Territories</td></tr>
           <tr><td><code>/siegegate [hp &lt;1-200&gt; | reset | list]</code></td><td>Builders: health of the gate you look at in your siege base</td><td class="cat">Territories</td></tr>
+          <tr><td><code>/army</code></td><td>Your army: the troop value of all your hired units by troop type, and the army limit. At or above the limit you cannot hire more troops until your army gets smaller</td><td class="cat">War</td></tr>
           <tr><td><code>/faction war declare &lt;faction&gt;</code></td><td>Leader: declare war (starts 24 h later)</td><td class="cat">War</td></tr>
           <tr><td><code>/faction war info &lt;faction&gt;</code></td><td>A faction's wars and pending armistice</td><td class="cat">War</td></tr>
           <tr><td><code>/faction war armistice [faction]</code></td><td>Leader: negotiate the end of a war</td><td class="cat">War</td></tr>
@@ -688,7 +689,7 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
           <tr><td><code>/cstats [player]</code> · <code>/cstats top loss|win|gamble</code></td><td>A player's casino record / top 5</td><td class="cat">Casino</td></tr>
           <tr><td><code>/event</code></td><td>The current server event</td><td class="cat">Community</td></tr>
           <tr><td><code>/timevote start</code> · <code>/weathervote start</code></td><td>Start a vote to change the time or the weather</td><td class="cat">Community</td></tr>
-          <tr><td><code>/teamchat</code> (<code>/tc</code>)</code></td><td>Switch between the global chat and your selected private chat (faction chat or team chat)</td><td class="cat">Community</td></tr>
+          <tr><td><code>/teamchat</code> (<code>/tc</code>)</td><td>Switch between the global chat and your selected private chat (faction chat or team chat)</td><td class="cat">Community</td></tr>
 <tr><td><code>/teamchat select &lt;faction id&gt;</code></td><td>Faction chat: write in your faction's chat (e.g. <code>/teamchat select gondor</code>). Every member of your faction is in it automatically, nobody else; nobody can invite, kick or leave</td><td class="cat">Community</td></tr>
 <tr><td><code>/teamchat select &lt;name&gt;</code></td><td>Team chat: write in one of your own team chats</td><td class="cat">Community</td></tr>
 <tr><td><code>/teamchat create &lt;name&gt;</code></td><td>Team chat: create a private group, open to players of any faction (cannot use a faction's name)</td><td class="cat">Community</td></tr>
