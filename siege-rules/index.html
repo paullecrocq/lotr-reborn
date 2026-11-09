@@ -71,6 +71,11 @@ ol.rules .why { color: var(--muted); font-size: .93rem; margin-top: 4px; }
 .note h3 { margin: 0 0 6px; font-size: 1.02rem; }
 .note ul { margin: 4px 0 0; padding-left: 1.2em; }
 code { font-family: var(--f-mono); font-size: .86em; background: var(--cmd-bg); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+dl.gloss { margin: 0; display: grid; gap: 8px; }
+dl.gloss > div { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; }
+dl.gloss dt { font-weight: 700; }
+dl.gloss dd { margin: 2px 0 0; }
+dl.gloss dd .ex { color: var(--muted); font-size: .93rem; }
 footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line); color: var(--muted); font-size: .9rem; }
 </style>
 </head>
@@ -80,7 +85,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
   <header class="hero">
     <div class="eyebrow">LOTR Reborn · Wars &amp; territories</div>
     <h1>Siege Base Rules</h1>
-    <p>Every siege base is checked by the staff before it is validated. A base that breaks one of these rules is sent back for changes. Rules are numbered so you can quote them.</p>
+    <p>Every siege base is checked by the staff before it is validated. A base that breaks one of these rules is sent back for changes. Rules are numbered so you can quote them. Words with a precise meaning in these rules are defined in the <a href="#glossary">glossary</a>.</p>
     <div class="toc">
       <a href="#path">The path</a>
       <a href="#gates">Gates</a>
@@ -88,6 +93,7 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <a href="#holes">Openings</a>
       <a href="#siege">During a siege</a>
       <a href="#auto">Checked automatically</a>
+      <a href="#glossary">Glossary</a>
     </div>
   </header>
 
@@ -163,6 +169,40 @@ footer { margin-top: 48px; padding-top: 16px; border-top: 1px solid var(--line);
       <h3>How a base gets validated</h3>
       <p>When the base is finished, the leader runs <code>/faction siegebase &lt;territory&gt; submit</code>. The staff checks it against these rules, then validates it or sends it back with a reason. <code>/faction siegebase &lt;territory&gt; reopen</code> unlocks a base for changes; it must then be validated again.</p>
     </div>
+  </section>
+
+  <section id="glossary">
+    <h2>Glossary</h2>
+    <p class="lede">What the words used in these rules mean.</p>
+    <dl class="gloss">
+      <div><dt>Attackers' spawn</dt><dd>The redstone block. Attackers appear there when the siege starts and every time they die.</dd></div>
+      <div><dt>Defenders' spawn</dt><dd>The diamond block. Defenders appear there when the siege starts and 15 seconds after each death.</dd></div>
+      <div><dt>Capture area</dt><dd>The 9&times;9 square centered on the emerald block, from the emerald up to 3 blocks above it. Attackers capture the base by outnumbering the defenders inside it.</dd></div>
+      <div><dt>Path</dt><dd>The route the attackers walk from their spawn to the capture area. It is at least 3 blocks wide and 2 blocks high everywhere, and only path gates may block it.</dd></div>
+      <div><dt>Obstruction</dt><dd>Anything on the path that stops, slows down, pushes or hurts a player walking along it.<br><span class="ex">Examples: any block other than a path gate, fences, walls, cobwebs, soul sand, water, lava, cacti, dart traps.</span></dd></div>
+      <div><dt>Lesser obstruction</dt><dd>A small decoration a player can walk around, placed next to the path but never on it.<br><span class="ex">Examples: barrels, tables, a pillar, plants, a weapon rack.</span></dd></div>
+      <div><dt>Source of damage</dt><dd>Any block or device that hurts a player who touches it or comes near it.<br><span class="ex">Examples: lava, fire, cacti, Morgul flowers, dart traps.</span></dd></div>
+      <div><dt>Next to (the path)</dt><dd>Touching the path's space: on its sides, under its floor or above it.</dd></div>
+      <div><dt>Continuous</dt><dd>The path can be walked from end to end, in both directions, with no gap, no obstruction and no step higher than 1 block.</dd></div>
+      <div><dt>Staircase</dt><dd>Steps that go up or down at most 1 block for every 1 block forward. Stairs and slabs are fine.</dd></div>
+      <div><dt>Drop</dt><dd>A vertical fall of more than 1 block. A player can't walk back up a drop.</dd></div>
+      <div><dt>Parkour</dt><dd>Any move that needs a jump across a gap, or onto a block more than 1 block higher.</dd></div>
+      <div><dt>Climbing</dt><dd>Any vertical move that isn't a staircase: ladders, vines, pillars of blocks, water columns.</dd></div>
+      <div><dt>Pit</dt><dd>A hole in the floor a player can fall into.</dd></div>
+      <div><dt>Exit (of a pit)</dt><dd>A walkable way out of the pit that leads back to the path, following the same rules as the path itself.</dd></div>
+      <div><dt>Labyrinth</dt><dd>A path with dead ends, forks or loops that hide the way to the capture area. The path must be one obvious route.</dd></div>
+      <div><dt>Gate</dt><dd>A group of LOTR gate blocks that touch each other.</dd></div>
+      <div><dt>Path gate</dt><dd>A gate that blocks the path. It must stand upright, be at least 3&times;3, have its HP set with <code>/siegegate</code> and have ram space in front of it. Every other gate in the base is free.</dd></div>
+      <div><dt>Ram space</dt><dd>The free space a ram needs on the attackers' side of a path gate: 6 blocks deep, 2 blocks high and 3 blocks wide.</dd></div>
+      <div><dt>Room</dt><dd>A space enclosed by walls, a floor and a ceiling.</dd></div>
+      <div><dt>Separate room</dt><dd>Two rooms are separate if no direct opening joins them: going from one to the other means going through at least one other space, such as a corridor.</dd></div>
+      <div><dt>Direct opening</dt><dd>Any gap that lets a player walk, see or shoot straight from one room into another: a doorway, a window, a hole, an open gate or trapdoor.</dd></div>
+      <div><dt>Hole (in a wall or roof)</dt><dd>Any gap a player can shoot through: a missing block, an arrow slit, fences, iron bars, a gap left by a slab.</dd></div>
+      <div><dt>Lower part of the body</dt><dd>The lower of the two blocks a player stands in: the legs and feet.</dd></div>
+      <div><dt>Line of sight</dt><dd>A straight line from a hole to any block of the capture area that no solid block cuts. It is judged with every gate in place and closed.</dd></div>
+      <div><dt>Exposed (attackers' spawn)</dt><dd>The defenders' area can see, shoot into or reach the attackers' spawn without the attackers first crossing the path.</dd></div>
+      <div><dt>Lit</dt><dd>Every spot of the capture area floor has a light level of at least 8, the level at which monsters can no longer appear.</dd></div>
+    </dl>
   </section>
 
   <footer>LOTR Reborn · Siege base rules · <a href="../#war">Info Center</a></footer>
