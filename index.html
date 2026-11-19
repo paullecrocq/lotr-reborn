@@ -73,6 +73,8 @@ section > .lede { color: var(--muted); margin: 0 0 18px; max-width: 64ch; }
 h3 { font-size: 1.12rem; margin: 26px 0 6px; }
 p, ul, ol.steps { max-width: 68ch; }
 ul { padding-left: 1.2em; margin: 6px 0 12px; }
+ol.rules { padding-left: 1.8em; margin: 6px 0 12px; max-width: 68ch; }
+ol.rules li { margin: 4px 0; }
 li { margin: 3px 0; }
 code, .cmd { font-family: var(--f-mono); font-size: .86em; background: var(--cmd-bg); padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
 .coins { color: var(--gold); font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -582,16 +584,27 @@ footer { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--line);
 
     <section id="rules">
       <h2>Rules &amp; fair play</h2>
-      <p class="lede">The full rules are in game with <code>/rules</code>. These are the ones that come up most.</p>
-      <h3>Not allowed</h3>
-      <ul>
-        <li><b>Going to the vanilla Overworld, Nether or End.</b> These dimensions are closed: Middle-earth and Utumno are the only playable worlds. Entering them by any means (Elven or Nether portals, teleports, glitches) is prohibited, and so is bringing back, keeping or using anything obtained there. Building a portal to them is prohibited too.</li>
-        <li>X-ray, ore or cave locators, and minimaps that show players.</li>
-        <li>Autoclickers, macros and AFK farms.</li>
-        <li>World downloaders; Schematica printing while AFK, or copying someone's build without permission.</li>
-        <li>Block glitching, escaping the lobby, glitching through walls by dismounting, and anything that equips armour instantly.</li>
-        <li>Breaking a protected block to see behind it, shooting protected items with ranged weapons, or trampling banner-protected crops on purpose.</li>
-      </ul>
+      <p class="lede">These are the server rules, the same list you get in game with <code>/rules</code>.</p>
+      <h3>General</h3>
+      <ol class="rules" start="1">
+        <li>Obey the admins.</li>
+        <li>Do not grief.</li>
+      </ol>
+      <h3>Chat</h3>
+      <ol class="rules" start="3">
+        <li>No racial slurs.</li>
+        <li>No chat spamming.</li>
+        <li>No threats beyond the game. Threatening someone's character, base or faction is part of the game; threatening the real person (real-life harm, doxxing) is not.</li>
+      </ol>
+      <h3>Gameplay</h3>
+      <ol class="rules" start="6">
+        <li>Do not go to the vanilla Overworld, Nether or End: they are closed. Do not build portals to them, and do not bring back, keep or use anything obtained there.</li>
+        <li>No X-ray, ore or cave locators, or minimaps that show players.</li>
+        <li>No autoclickers, macros or AFK farms.</li>
+        <li>No world downloaders, no Schematica printing while AFK, and no copying someone's build without permission.</li>
+        <li>No block glitching, escaping the lobby, glitching through walls by dismounting, or instant armour equipping.</li>
+        <li>Do not break a protected block to see behind it, shoot protected items with ranged weapons, or trample banner-protected crops on purpose.</li>
+      </ol>
       <h3>What the server checks automatically</h3>
       <ul>
         <li><b>Autoclicking:</b> clicking too fast or with machine-like regularity is reported to the staff.</li>
